@@ -1,0 +1,16 @@
+3 websites
+website one (utlån info):
+    2 different type of users:
+        elever, kan se hvilke bøker de har leid (og utløps dato etc.)
+        bibliotekarer, kan se alle elever og hvilke bøker de har leid
+
+website 2 (book info):
+    bare tilgang for bibliotekarer
+    på et isolert nett
+    scan qr code for å få info om boken og mulighet til å leie bok til elev (hvis den ikke er leid enda)
+    qr codes linker til priv ip til server så må være på riktig nett
+
+website 3 / API:
+    REST API
+    1 endpoint (bokID)
+    sender json 
