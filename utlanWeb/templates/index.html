@@ -6,6 +6,10 @@
     <title>:3</title>
 </head>
 <body>
-    <a href="/login">Login</a>
+    {% if "userID" in session %}
+        <p>Welcome back {{ first }}</p>
+    {% else %}
+        <a href="/login">Login</a>
+    {% endif %}
 </body>
 </html>
