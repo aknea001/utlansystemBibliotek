@@ -65,5 +65,56 @@ def elev(elevID):
 
     return jsonify(dataDic)
 
+@app.route("/bok/<bokID>")
+def bok(bokID):
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+
+        query = "SELECT \
+                    b.*, \
+                    e.id AS elevID, \
+                    e.fornavn, \
+                    e.etternavn, \
+                    e.programfag \
+                FROM boker b \
+                LEFT JOIN utlan u ON b.id = u.bokID \
+                LEFT JOIN elever e ON u.elevID = e.id \
+                WHERE b.id = %s;"
+
+        cursor.execute(query, (bokID, ))
+        data = cursor.fetchone()
+
+        if data:
+            dataDic = {
+                "bokInfo": {
+                    "id": data[0],
+                    "navn": data[1],
+                    "forfatter": data[2],
+                    "sjanger": data[3],
+                    "hylle": data[4]
+                },
+                "leid": data[5] != None,
+                "elevInfo": {
+                    "elevID": data[5],
+                    "navn": {
+                        "first": data[6],
+                        "last": data[7]
+                    },
+                    "programfag": data[8]
+                }
+            }
+        else:
+            return jsonify({"error": "No data found"}), 404
+    except mysql.connector.Error as e:
+        db = None
+        return(f"oopsie: {e}")
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
+
+    return jsonify(dataDic)
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
