@@ -48,7 +48,7 @@ def index(bokID):
             response = requests.post(url, json={"elevID": elevID, "dager": dager})
             return redirect(url_for("index", bokID=bokID))
         else:
-            print("YIPPIE")
+            response = requests.post(url, json={"return": True})
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
