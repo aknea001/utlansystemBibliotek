@@ -120,7 +120,10 @@ def bok(bokID):
         try:
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
+        except mysql.connector.Error as e:
+            return jsonify({"success": False, "error": str(e)})
 
+        try:
             query = "INSERT INTO utlan (bokID, elevID, sluttDato) \
                     VALUES \
                     (%s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
@@ -132,8 +135,12 @@ def bok(bokID):
 
             return jsonify({"success": True})
         except KeyError as e:
-            db = None
-            return jsonify({"success": False, "error": f"Wrong Key: {e}"})
+            try:
+                if postData["return"]:
+                    query = "DELETE FROM utlan WHERE bokID"
+            except KeyError:
+                db = None
+                return jsonify({"success": False, "error": f"Wrong Key: {e}"})
         except mysql.connector.Error as e:
             db = None
             return jsonify({"success": False, "error": str(e)})

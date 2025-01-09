@@ -12,13 +12,16 @@
     {% if "leid" in session %}
         <br><p>Elev:</p>
         <p>{{ elevNavn }}</p>
-        <p>{{ elevProg }}</p>
+        <p>{{ elevProg }}</p> 
+        <form action="" method="POST">
+            <input value="Returner" type="submit" name="submit">
+        </form>
     {% else %}
         <p>Hylle: {{ hylle }}</p>
         <form action="" method="POST">
             <input placeholder="Elev ID" type="text" name="elevID" required><br>
             <input placeholder="Dager" type="text" name="dager" required><br>
-            <input value="Lei ut" type="submit">
+            <input value="Lei Ut" type="submit" name="submit">
         </form>
     {% endif %}
 </body>

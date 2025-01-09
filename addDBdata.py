@@ -13,7 +13,7 @@ sqlConfig = {
     "database": getenv("SQLDATABASE")
 }
 
-def main(fornavn, etternavn, programfag):
+def elever(fornavn, etternavn, programfag):
     try:
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
@@ -32,8 +32,8 @@ def main(fornavn, etternavn, programfag):
             cursor.close()
             db.close()
 
-if __name__ == "__main__":
-    for i in range(20):
+def addElever(count):
+    for i in range(count):
         url = "https://randomuser.me/api/?nat=no,dk,nl,us"
 
         response = requests.get(url)
@@ -55,4 +55,7 @@ if __name__ == "__main__":
 
         print(f"First: {first} \nLast: {last} \nProgramfag: {programfag}")
 
-        main(first, last, programfag)
+        elever(first, last, programfag)
+
+if __name__ == "__main__":
+    pass
