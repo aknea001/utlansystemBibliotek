@@ -15,6 +15,11 @@
         <p>{{ elevProg }}</p>
     {% else %}
         <p>Hylle: {{ hylle }}</p>
+        <form action="" method="POST">
+            <input placeholder="Elev ID" type="text" name="elevID" required><br>
+            <input placeholder="Dager" type="text" name="dager" required><br>
+            <input value="Lei ut" type="submit">
+        </form>
     {% endif %}
 </body>
 </html>
