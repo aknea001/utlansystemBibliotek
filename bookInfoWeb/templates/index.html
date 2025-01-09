@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{ navn }}</h1>
+    <p>Forfatter: {{ forfatter }}</p>
+    <p>Sjanger: {{ sjanger }}</p>
+    {% if "leid" in session %}
+        <br><p>Elev:</p>
+        <p>{{ elevNavn }}</p>
+        <p>{{ elevProg }}</p>
+    {% else %}
+        <p>Hylle: {{ hylle }}</p>
+    {% endif %}
+</body>
+</html>
