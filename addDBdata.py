@@ -46,6 +46,7 @@ def addElever(count):
         linjer1 = ["ST", "MK", "IM"]
         linjer2 = ["ST", "MK", "MP", "IT"]
         trinn = randint(1, 2)
+
         if trinn == 1:
             linje = choice(linjer1)
         else:
@@ -57,5 +58,65 @@ def addElever(count):
 
         elever(first, last, programfag)
 
+def boker(navn, forfatter, sjanger, hylle):
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+
+        query = "INSERT INTO boker (navn, forfatter, sjanger, hylle) \
+                VALUES \
+                (%s, %s, %s, %s)"
+        
+        cursor.execute(query, (navn, forfatter, sjanger, hylle))
+        db.commit()
+
+        print(f"Successfully added {navn} by {forfatter}")
+    except mysql.connector.Error as e:
+        db = None
+        print(f"woopise: {e}")
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
+
+def apiGet(url):
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return response.status_code
+
+def addBoker(count):
+    import string
+
+    for i in range(count):
+        adjective = apiGet("https://random-word-form.herokuapp.com/random/adjective")[0]
+        noun = apiGet("https://random-word-form.herokuapp.com/random/noun")[0]
+        
+        title = f"The {adjective} {noun}"
+
+        fullName = apiGet("https://randomuser.me/api/?nat=no,dk,nl,us")["results"][0]["name"]
+
+        forfatter = f"{fullName['first']} {fullName['last']}"
+
+        henry = randint(1,20)
+        if henry == 8:
+            forfatter = "Henry Dang"
+
+        sjanger = apiGet("https://random-word-form.herokuapp.com/random/adjective")[0]
+
+        hylleTall = randint(1, 99)
+
+        if hylleTall < 10:
+            hylleTall = "0" + str(hylleTall)
+
+        hylleBokstav = choice(string.ascii_uppercase)
+
+        hylle = str(hylleTall) + hylleBokstav
+
+        print(f"Navn: {title} \nForfatter: {forfatter} \nSjanger: {sjanger} \nHylle: {hylle}")
+        boker(title, forfatter, sjanger, hylle)
+
 if __name__ == "__main__":
-    pass
+    addBoker(30)
