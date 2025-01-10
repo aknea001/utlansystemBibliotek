@@ -129,6 +129,8 @@ def bok(bokID):
                     (%s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
             
             postData = request.json
+
+            #print(postData)
             
             cursor.execute(query, (bokID, postData["elevID"], postData["dager"]))
             db.commit()
@@ -137,7 +139,14 @@ def bok(bokID):
         except KeyError as e:
             try:
                 if postData["return"]:
-                    query = "DELETE FROM utlan WHERE bokID"
+                    #print("returning..")
+
+                    query = "DELETE FROM utlan WHERE bokID = %s"
+
+                    cursor.execute(query, (bokID, ))
+                    db.commit()
+
+                    return jsonify({"success": True})
             except KeyError:
                 db = None
                 return jsonify({"success": False, "error": f"Wrong Key: {e}"})

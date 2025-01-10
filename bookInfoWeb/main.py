@@ -39,7 +39,7 @@ def index(bokID):
     else:
         form = request.form
 
-        print(form)
+        #print(form)
 
         if form["submit"] == "Lei Ut":
             elevID = form["elevID"]
@@ -48,7 +48,10 @@ def index(bokID):
             response = requests.post(url, json={"elevID": elevID, "dager": dager})
             return redirect(url_for("index", bokID=bokID))
         else:
+            #print("returnerer")
+            
             response = requests.post(url, json={"return": True})
+            return redirect(url_for("index", bokID=bokID))
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
