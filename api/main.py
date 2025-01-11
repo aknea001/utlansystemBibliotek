@@ -37,22 +37,28 @@ def elev(elevID):
 
         if data:
             dataDic = {
-                "userInfo": {
-                    "id": data[0], 
-                    "name": {
-                        "first": data[1], 
-                        "last": data[2]
-                    }, 
-                    "programfag": data[3], 
-                    "registrert": data[4]
-                },
-                "utlanInfo": {
-                    "bokIDer": data[5].split(","),
-                    "bokNavn": data[6].split(","),
-                    "bokForfattere": data[7].split(","),
-                    "bokSjangere": data[8].split(",")
+                    "userInfo": {
+                        "id": data[0], 
+                        "name": {
+                            "first": data[1], 
+                            "last": data[2]
+                        }, 
+                        "programfag": data[3], 
+                        "registrert": data[4]
+                    },
+                    "leid": False
                 }
-            }
+            
+            if data[5]:
+                dataDic["leid"] = True
+                dataDic["utlanInfo"] = {
+                                "bokIDer": data[5].split(","),
+                                "bokNavn": data[6].split(","),
+                                "bokForfattere": data[7].split(","),
+                                "bokSjangere": data[8].split(",")
+                            }
+
+            return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
     except mysql.connector.Error as e:
@@ -62,8 +68,6 @@ def elev(elevID):
         if db != None and db.is_connected():
             cursor.close()
             db.close()
-
-    return jsonify(dataDic)
 
 @app.route("/bok/<bokID>", methods=["GET", "POST"])
 def bok(bokID):
