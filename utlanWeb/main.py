@@ -6,12 +6,29 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = getenv("FLASKPASSWD")
+#app.secret_key = getenv("FLASKPASSWD")
 app.jinja_env.filters["zip"] = zip
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/<elevID>")
+def elevInfo(elevID):
+    url = f"http://localhost:8000/elev/{elevID}"
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return f"error connecting to server: {response.status_code}"
+    
+    data = response.json()
+    userInfo = data["userInfo"]
+
+    navn = userInfo["name"]
+
+    return render_template("elevPage.html", navn=navn["first"])
+        
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
