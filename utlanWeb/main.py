@@ -27,8 +27,23 @@ def elevInfo(elevID):
 
     navn = userInfo["name"]
 
-    return render_template("elevPage.html", navn=navn["first"])
-        
+    utlanLst = []
+    
+    if data["leid"]:
+        utlanInfo = data["utlanInfo"]
+        bokNavn = utlanInfo["bokNavn"]
+        bokForfattere = utlanInfo["bokForfattere"]
+
+        tempUtlanLst = []
+
+        for i in range(len(bokNavn)):
+            tempUtlanLst.append(bokNavn[i])
+            tempUtlanLst.append(bokForfattere[i])
+
+            utlanLst.append(tempUtlanLst)
+            tempUtlanLst = []
+
+    return render_template("elevPage.html", navn=navn["first"], leid=data["leid"], utlan=utlanLst)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

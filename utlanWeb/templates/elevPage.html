@@ -7,5 +7,20 @@
 </head>
 <body>
     <h1>Velkommen tilbake {{ navn }}!</h1>
+
+    {% if leid %}
+        <h3>Bøker du leier nå:</h3>
+        <div style="display: flex; flex-direction: row;">
+            {% for i in utlan %}
+                <div style="display: flex; flex-direction: column; margin-right: 30px; align-items: center;">
+                    <p>{{ i[0] }} av {{ i[1] }}</p>
+                    <img style="width: 200px;" src="/static/cover.jpg" alt="">
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Ser ikke ut som du har leid noen bøker enda!</p>
+        <p>Du kan se på utvalget <a href="">her</a></p>
+    {% endif %}
 </body>
 </html>
