@@ -8,6 +8,7 @@
 <body>
     {% if "elevID" in session %}
         <p>Welcome back {{ first }}</p>
+        <a href="/profile">Profil</a>
         <a href="/logout">Log ut</a>
     {% else %}
         <a href="/login">Login</a>

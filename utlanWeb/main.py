@@ -17,7 +17,7 @@ def index():
 def elevInfo():
     url = f"http://localhost:8000/elev"
 
-    response = requests.get(url, headers={"elevID": "6"})
+    response = requests.get(url, headers={"elevID": str(session["elevID"])})
 
     if response.status_code != 200:
         return f"error connecting to server: {response.status_code}"
