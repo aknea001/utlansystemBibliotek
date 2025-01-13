@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, url_for, request
+from flask import Flask, session, render_template, url_for, request, redirect
 from dotenv import load_dotenv
 from os import getenv
 import requests
@@ -45,6 +45,16 @@ def elevInfo():
 
     return render_template("elevPage.html", navn=navn["first"], leid=data["leid"], utlan=utlanLst)
 
+def hash(passwd, salt):
+    import hashlib
+
+    flavorPass = str(passwd) + str(salt)
+
+    hashObj = hashlib.sha256(flavorPass.encode())
+    hashed = hashObj.hexdigest()
+
+    return hashed
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -52,6 +62,33 @@ def login():
     
     user = request.form["user"]
     passwd = request.form["passwd"]
+
+    url = "http://localhost:8000/elev"
+    response = requests.get(url, headers={"username": str(user), "salt": "True"})
+
+    if response.status_code == 200:
+        salt = response.json()["salt"]
+    else:
+        return f"error: {response.status_code}"
+    
+    hashed = hash(passwd, salt)
+
+    response = requests.get(url, headers={"username": str(user), "hash": hashed})
+
+    if response.status_code == 200:
+        elevID = response.json()["elevID"]
+    elif response.status_code == 404:
+        return "Wrong credentials"
+    else:
+        return f"error: {response.status_code}"
+    
+    session["elevID"] = elevID
+    return redirect(url_for("index"))
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

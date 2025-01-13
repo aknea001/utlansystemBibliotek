@@ -6,8 +6,9 @@
     <title>:3</title>
 </head>
 <body>
-    {% if "userID" in session %}
+    {% if "elevID" in session %}
         <p>Welcome back {{ first }}</p>
+        <a href="/logout">Log ut</a>
     {% else %}
         <a href="/login">Login</a>
     {% endif %}
