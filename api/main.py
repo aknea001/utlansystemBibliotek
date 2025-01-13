@@ -98,6 +98,31 @@ def elev():
             return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
+    elif ("username" and "salt") in request.headers:
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT salt FROM elever WHERE fornavn = %s"
+
+            cursor.execute(query, (request.headers["username"], ))
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        if data:
+            dataDic = {
+                    "salt": data[0]
+            }
+
+            return jsonify(dataDic)
+        else:
+            return jsonify({"error": "No data found"}), 404
     else:
         return jsonify({"error": "Missing headers"})
 
