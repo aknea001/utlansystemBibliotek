@@ -46,18 +46,20 @@ def elev():
                             "last": data[2]
                         }, 
                         "programfag": data[3], 
-                        "registrert": data[4]
+                        "registrert": data[4],
+                        "hash": data[5],
+                        "salt": data[6]
                     },
                     "leid": False
                 }
             
-            if data[5]:
+            if data[7]:
                 dataDic["leid"] = True
                 dataDic["utlanInfo"] = {
-                                "bokIDer": data[5].split(","),
-                                "bokNavn": data[6].split(","),
-                                "bokForfattere": data[7].split(","),
-                                "bokSjangere": data[8].split(",")
+                                "bokIDer": data[7].split(","),
+                                "bokNavn": data[8].split(","),
+                                "bokForfattere": data[9].split(","),
+                                "bokSjangere": data[10].split(",")
                             }
 
             return jsonify(dataDic)
