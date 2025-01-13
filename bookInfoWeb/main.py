@@ -49,7 +49,7 @@ def index(bokID):
         sjanger = bokInfo["sjanger"]
         hylle = bokInfo["hylle"]
 
-        generateCover(navn, forfatter)
+        generateCover(navn, str(forfatter))
 
         elevNavn = f"{elevInfo['navn']['first']} {elevInfo['navn']['last']}"
         programfag = elevInfo["programfag"]
