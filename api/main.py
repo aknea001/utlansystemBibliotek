@@ -16,26 +16,34 @@ app = Flask(__name__)
 
 @app.route("/elev")
 def elev():
-    elevID = int(request.headers["elevID"])
+    if "elevID" in request.headers:
+        elevID = int(request.headers["elevID"])
 
-    try:
-        db = mysql.connector.connect(**sqlConfig)
-        cursor = db.cursor()
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
 
-        query = "SELECT\
-                    e.*, \
-                    GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
-                    GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
-                    GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
-                    GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
-                FROM elever e \
-                LEFT JOIN utlan u ON e.id = u.elevID \
-                LEFT JOIN boker b ON u.bokID = b.id \
-                WHERE e.id = %s \
-                GROUP BY e.id;"
+            query = "SELECT\
+                        e.*, \
+                        GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
+                        GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
+                        GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
+                        GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
+                    FROM elever e \
+                    LEFT JOIN utlan u ON e.id = u.elevID \
+                    LEFT JOIN boker b ON u.bokID = b.id \
+                    WHERE e.id = %s \
+                    GROUP BY e.id;"
 
-        cursor.execute(query, (elevID, ))
-        data = cursor.fetchone()
+            cursor.execute(query, (elevID, ))
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
 
         if data:
             dataDic = {
@@ -65,13 +73,33 @@ def elev():
             return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
-    except mysql.connector.Error as e:
-        db = None
-        return f"oopsie: {e}"
-    finally:
-        if db != None and db.is_connected():
-            cursor.close()
-            db.close()
+    elif ("username" and "hash") in request.headers:
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT id FROM elever WHERE fornavn = %s AND hash = %s"
+
+            cursor.execute(query, (request.headers["username"], request.headers["hash"]))
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        if data:
+            dataDic = {
+                    "elevID": data[0]
+            }
+
+            return jsonify(dataDic)
+        else:
+            return jsonify({"error": "No data found"}), 404
+    else:
+        return jsonify({"error": "Missing headers"})
 
 @app.route("/bok/<bokID>", methods=["GET", "POST"])
 def bok(bokID):
