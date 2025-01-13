@@ -58,6 +58,42 @@ def addElever(count):
 
         elever(first, last, programfag)
 
+def passordHash(hash, salt, id):
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+
+        query = "UPDATE elever \
+                SET hash = %s, salt = %s \
+                WHERE id = %s"
+
+        cursor.execute(query, (hash, salt, id))
+        db.commit()
+
+        print("Success..")
+    except mysql.connector.Error as e:
+        db = None
+        print(f"oopsie: {e}")
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
+
+def addPassword(count):
+    import hashlib
+    from secrets import token_hex
+
+    passwd = "password"
+    for i in range(count):
+        salt = token_hex(32)
+
+        flavorPass = passwd + str(salt)
+
+        hashObj = hashlib.sha256(flavorPass.encode())
+        hashed = hashObj.hexdigest()
+
+        passordHash(hashed, salt, i + 1)
+
 def boker(navn, forfatter, sjanger, hylle):
     try:
         db = mysql.connector.connect(**sqlConfig)
@@ -119,4 +155,4 @@ def addBoker(count):
         boker(title, forfatter, sjanger, hylle)
 
 if __name__ == "__main__":
-    addBoker(30)
+    addPassword(22)
