@@ -14,8 +14,10 @@ sqlConfig = {
 
 app = Flask(__name__)
 
-@app.route("/elev/<elevID>")
-def elev(elevID):
+@app.route("/elev")
+def elev():
+    elevID = int(request.headers["elevID"])
+
     try:
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
