@@ -13,9 +13,32 @@ app.jinja_env.filters["zip"] = zip
 def index():
     return render_template("index.html")
 
+def generateCover(navn, forfattere, amount):
+    from PIL import Image, ImageDraw, ImageFont
+
+    for i in range(amount):
+        image = Image.open("bookInfoWeb/static/baseCover.jpg")
+        draw = ImageDraw.Draw(image)
+
+        fontNavn = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 50)
+        fontForf = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
+        textColor = (0, 0, 0)
+
+        navnTextLength = draw.textlength(navn[i], fontNavn)
+        xNavn = (image.width - navnTextLength) / 2
+        yNavn = image.height / 5
+
+        forfTextLength = draw.textlength(forfattere[i], fontForf)
+        xForf = (image.width - forfTextLength) / 2
+        yForf = image.height / 3
+
+        draw.text((xNavn, yNavn), navn[i], font=fontNavn, fill=textColor)
+        draw.text((xForf, yForf), forfattere[i], font=fontForf, fill=textColor)
+        image.save(f"utlanWeb/static/cover{i}.jpg")
+
 @app.route("/profile")
 def elevInfo():
-    url = f"http://localhost:8000/elev"
+    url = "http://localhost:8000/elev"
 
     response = requests.get(url, headers={"elevID": str(session["elevID"])})
 
@@ -42,6 +65,8 @@ def elevInfo():
 
             utlanLst.append(tempUtlanLst)
             tempUtlanLst = []
+
+    generateCover(bokNavn, bokForfattere, len(bokNavn))
 
     return render_template("elevPage.html", navn=navn["first"], leid=data["leid"], utlan=utlanLst)
 

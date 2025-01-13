@@ -15,7 +15,7 @@
             {% for i in utlan %}
                 <div style="display: flex; flex-direction: column; margin-right: 30px; align-items: center;">
                     <p>{{ i[0] }} av {{ i[1] }}</p>
-                    <img style="width: 200px;" src="/static/cover.jpg" alt="">
+                    <img style="width: 200px;" src="/static/cover{{ loop.index0 }}.jpg" alt="">
                 </div>
             {% endfor %}
         </div>
