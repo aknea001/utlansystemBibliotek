@@ -20,10 +20,13 @@
     {% else %}
         <p>Hylle: {{ hylle }}</p>
         <form action="" method="POST">
-            <input placeholder="Elev ID" type="text" name="elevID" required><br>
+            <input placeholder="Elev ID" type="text" name="elevID" id="navn" required><br>
             <input placeholder="Dager" type="text" name="dager" required><br>
             <input value="Lei Ut" type="submit" name="submit">
         </form>
+        <p id="output"></p>
+
+        <script src="/static/index.js"></script>
     {% endif %}
 </body>
 </html>
