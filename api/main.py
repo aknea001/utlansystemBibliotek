@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import mysql.connector
 from dotenv import load_dotenv
 from os import getenv
@@ -13,6 +14,7 @@ sqlConfig = {
 }
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/elev")
 def elev():
@@ -125,6 +127,32 @@ def elev():
             return jsonify({"error": "No data found"}), 404
     else:
         return jsonify({"error": "Missing headers"})
+    
+@app.route("/elevNavn")
+def elevNavn():
+    if "searchQuery" not in request.headers:
+        return jsonify({"error": "missing headers"}), 404
+
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+
+        query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s"
+
+        cursor.execute(query, (f"{request.headers["searchQuery"]}%", ))
+        data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        db = None
+        return jsonify({"error": f"database error {e}"})
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
+        
+    if data:
+        return jsonify(data)
+    else:
+        return jsonify([])
 
 @app.route("/bok/<bokID>", methods=["GET", "POST"])
 def bok(bokID):
