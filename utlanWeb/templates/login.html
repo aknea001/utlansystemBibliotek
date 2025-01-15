@@ -9,9 +9,10 @@
     <a href="/">Home</a>
     <h1>LOGIN</h1>
     <form action="/login" method="POST">
-        <input placeholder="Navn" type="text" name="navn" id="navn" list="dataL" required><br>
-
-        {% if "registrert" in session %}
+        {% if "registrert" not in session %}
+            <input placeholder="Navn" type="text" name="navn" id="navn" list="dataL" required><br>
+        {% else %}
+            <input value="{{ elevNavn }}" placeholder="Navn" type="text" name="navn" id="navn" list="dataL" required readonly><br>
             <input placeholder="Password" type="password" name="passwd" required><br>
         {% endif %}
 

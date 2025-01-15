@@ -41,7 +41,7 @@ def login():
             return render_template("register.html")
         else:
             session["registrert"] = True
-            return render_template("login.html")
+            return render_template("login.html", elevNavn=user)
     
     passwd = request.form["passwd"]
 
