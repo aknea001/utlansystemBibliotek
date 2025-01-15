@@ -1,4 +1,4 @@
 .env
 .venv
-utlanWeb/static/*
+utlanWeb/static/cover*
 testShit

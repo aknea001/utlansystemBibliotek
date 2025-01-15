@@ -28,10 +28,23 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     
-    user = request.form["user"]
+    url = "http://localhost:8000/elev"
+    user = request.form["navn"]
+
+    if "passwd" not in request.form:
+        response = requests.get(url, headers={"elevNavn": str(user)})
+
+        if response.status_code != 200:
+            return f"error connecting to API: {response.status_code}"
+        
+        if response.json()["registrert"] == "f":
+            return render_template("register.html")
+        else:
+            session["registrert"] = True
+            return render_template("login.html")
+    
     passwd = request.form["passwd"]
 
-    url = "http://localhost:8000/elev"
     response = requests.get(url, headers={"username": str(user), "salt": "True"})
 
     if response.status_code == 200:

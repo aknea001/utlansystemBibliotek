@@ -9,10 +9,17 @@
     <a href="/">Home</a>
     <h1>LOGIN</h1>
     <form action="/login" method="POST">
-        <input placeholder="Username" type="text" name="user" required><br>
-        <input placeholder="Password" type="password" name="passwd" required><br>
+        <input placeholder="Navn" type="text" name="navn" id="navn" list="dataL" required><br>
+
+        {% if "registrert" in session %}
+            <input placeholder="Password" type="password" name="passwd" required><br>
+        {% endif %}
 
         <input value="Login" type="submit">
     </form>
+
+    <datalist id="dataL"></datalist>
+
+    <script src="/static/index.js"></script>
 </body>
 </html>
