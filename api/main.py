@@ -137,7 +137,7 @@ def elevNavn():
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
 
-        query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s"
+        query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s LIMIT 4"
 
         cursor.execute(query, (f"{request.headers['searchQuery']}%", ))
         data = cursor.fetchall()
