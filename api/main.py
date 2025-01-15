@@ -139,7 +139,7 @@ def elevNavn():
 
         query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s"
 
-        cursor.execute(query, (f"{request.headers["searchQuery"]}%", ))
+        cursor.execute(query, (f"{request.headers['searchQuery']}%", ))
         data = cursor.fetchall()
     except mysql.connector.Error as e:
         db = None

@@ -38,6 +38,9 @@ def generateCover(navn, forfattere, amount):
 
 @app.route("/profile")
 def elevInfo():
+    if "elevID" not in session:
+        return redirect(url_for("login"))
+
     url = "http://localhost:8000/elev"
 
     response = requests.get(url, headers={"elevID": str(session["elevID"])})
