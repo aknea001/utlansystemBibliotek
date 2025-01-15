@@ -45,7 +45,7 @@ def login():
     
     passwd = request.form["passwd"]
 
-    response = requests.get(url, headers={"username": str(user), "salt": "True"})
+    response = requests.get(url, headers={"elevNavn": str(user)})
 
     if response.status_code == 200:
         salt = response.json()["salt"]
@@ -54,7 +54,7 @@ def login():
     
     hashed = hash(passwd, salt)
 
-    response = requests.get(url, headers={"username": str(user), "hash": hashed})
+    response = requests.get(url, headers={"elevNavn": str(user), "hash": hashed})
 
     if response.status_code == 200:
         elevID = response.json()["elevID"]

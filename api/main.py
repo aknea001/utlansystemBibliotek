@@ -75,14 +75,16 @@ def elev():
             return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
-    elif ("username" and "hash") in request.headers:
+    elif ("elevNavn" and "hash") in request.headers:
+        fullNavn = request.headers["elevNavn"]
+        fullNavnLst = fullNavn.split(" ")
         try:
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "SELECT id FROM elever WHERE fornavn = %s AND hash = %s"
+            query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
 
-            cursor.execute(query, (request.headers["username"], request.headers["hash"]))
+            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
             data = cursor.fetchone()
         except mysql.connector.Error as e:
             db = None
@@ -100,31 +102,6 @@ def elev():
             return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
-    elif ("username" and "salt") in request.headers:
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
-
-            query = "SELECT salt FROM elever WHERE fornavn = %s"
-
-            cursor.execute(query, (request.headers["username"], ))
-            data = cursor.fetchone()
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"mysql error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
-
-        if data:
-            dataDic = {
-                    "salt": data[0]
-            }
-
-            return jsonify(dataDic)
-        else:
-            return jsonify({"error": "No data found"}), 404
     elif "elevNavn" in request.headers:
         fullNavn = request.headers["elevNavn"]
         fullNavnLst = fullNavn.split(" ")
@@ -135,7 +112,7 @@ def elev():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "SELECT id, registrert FROM elever WHERE fornavn = %s AND etternavn = %s"
+            query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
             cursor.execute(query, (first, last))
 
             data = cursor.fetchone()
@@ -150,7 +127,8 @@ def elev():
         if data:
             dataDic = {
                 "id": data[0],
-                "registrert": data[1]
+                "registrert": data[1],
+                "salt": data[2]
             }
             return jsonify(dataDic)
         else:
