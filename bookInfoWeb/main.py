@@ -66,8 +66,15 @@ def index(bokID):
         #print(form)
 
         if form["submit"] == "Lei Ut":
-            elevID = form["elevID"]
+            elevNavn = form["elevNavn"]
             dager = form["dager"]
+
+            response = requests.get("http://localhost:8000/elev", headers={"elevNavn": elevNavn})
+
+            if response.status_code == 200:
+                elevID = response.json()[0]
+            else:
+                return f"error: {response.status_code}"
 
             response = requests.post(url, json={"elevID": elevID, "dager": dager})
             return redirect(url_for("index", bokID=bokID))

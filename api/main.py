@@ -125,6 +125,32 @@ def elev():
             return jsonify(dataDic)
         else:
             return jsonify({"error": "No data found"}), 404
+    elif "elevNavn" in request.headers:
+        fullNavn = request.headers["elevNavn"]
+        fullNavnLst = fullNavn.split(" ")
+
+        first = fullNavnLst[0]
+        last = fullNavnLst[1]
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s"
+            cursor.execute(query, (first, last))
+
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        if data:
+            return jsonify(data)
+        else:
+            return jsonify({"error": "no data found"})
     else:
         return jsonify({"error": "Missing headers"})
     
