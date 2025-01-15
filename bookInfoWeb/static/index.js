@@ -1,5 +1,5 @@
 const nameInput = document.getElementById("navn")
-const outputField = document.getElementById("output")
+const dataList = document.getElementById("dataL")
 const xhr = new XMLHttpRequest()
 
 function APIcall(searchQuery, callback) {
@@ -9,7 +9,6 @@ function APIcall(searchQuery, callback) {
     xhr.responseType = "json"
     xhr.onload = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
-            console.log(xhr.response)
             callback(xhr.response)
         } else {
             console.log(xhr.status)
@@ -19,28 +18,30 @@ function APIcall(searchQuery, callback) {
 
 let oldValue
 
-function test() {
+function search() {
     const nameValue = nameInput.value
     
     if (nameValue != (null || "") && nameValue != oldValue) {
-        console.log(nameValue)
-        outputField.innerText = ""
+        dataList.innerHTML = ""
         
         APIcall(nameValue, (data) => {
             for (i=0; i<data.length; i++) {
-                const str = `${String(data[i][0])} ${String(data[i][1])}\n`
-    
-                outputField.innerText += str
+                const str = `${String(data[i][0])} ${String(data[i][1])}`
+     
+                const option = document.createElement("option")
+                option.value = str
+
+                dataList.appendChild(option)
             }
         })
 
         oldValue = nameValue
     } else if (nameValue == (null || "")) {
-        outputField.innerText = ""
+        dataList.innerHTML = ""
         oldValue = null
     }
 
-    setTimeout(test, 200)
+    setTimeout(search, 200)
 }
 
-test()
+search()
