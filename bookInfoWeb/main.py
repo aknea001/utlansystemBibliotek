@@ -14,8 +14,8 @@ def generateCover(navn, forfatter):
     image = Image.open("bookInfoWeb/static/baseCover.jpg")
     draw = ImageDraw.Draw(image)
 
-    fontNavn = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 50)
-    fontForf = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
+    fontNavn = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 50)
+    fontForf = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 36)
     textColor = (0, 0, 0)
 
     navnTextLength = draw.textlength(navn, fontNavn)
