@@ -12,6 +12,7 @@ app.jinja_env.filters["zip"] = zip
 
 @app.route("/")
 def index():
+    session.pop("registrert", None)
     return render_template("index.html")
 
 def hash(passwd, salt):
@@ -150,7 +151,6 @@ def register():
         return "passwords not matching"
     
     salt = token_hex(32)
-
     hashed = hash(passwd, salt)
     
     url = "http://localhost:8000/elev"
