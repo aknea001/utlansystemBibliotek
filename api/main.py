@@ -16,125 +16,149 @@ sqlConfig = {
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/elev")
+@app.route("/elev", methods=["GET", "POST"])
 def elev():
-    if "elevID" in request.headers:
-        elevID = int(request.headers["elevID"])
+    if request.method == "GET":
+        if "elevID" in request.headers:
+            elevID = int(request.headers["elevID"])
 
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
+            try:
+                db = mysql.connector.connect(**sqlConfig)
+                cursor = db.cursor()
 
-            query = "SELECT\
-                        e.*, \
-                        GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
-                        GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
-                        GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
-                        GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
-                    FROM elever e \
-                    LEFT JOIN utlan u ON e.id = u.elevID \
-                    LEFT JOIN boker b ON u.bokID = b.id \
-                    WHERE e.id = %s \
-                    GROUP BY e.id;"
+                query = "SELECT\
+                            e.*, \
+                            GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
+                            GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
+                            GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
+                            GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
+                        FROM elever e \
+                        LEFT JOIN utlan u ON e.id = u.elevID \
+                        LEFT JOIN boker b ON u.bokID = b.id \
+                        WHERE e.id = %s \
+                        GROUP BY e.id;"
 
-            cursor.execute(query, (elevID, ))
-            data = cursor.fetchone()
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"mysql error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
+                cursor.execute(query, (elevID, ))
+                data = cursor.fetchone()
+            except mysql.connector.Error as e:
+                db = None
+                return jsonify({"error": f"mysql error: {e}"})
+            finally:
+                if db != None and db.is_connected():
+                    cursor.close()
+                    db.close()
 
-        if data:
-            dataDic = {
-                    "userInfo": {
-                        "id": data[0], 
-                        "name": {
-                            "first": data[1], 
-                            "last": data[2]
-                        }, 
-                        "programfag": data[3], 
-                        "registrert": data[4],
-                        "hash": data[5],
-                        "salt": data[6]
-                    },
-                    "leid": False
+            if data:
+                dataDic = {
+                        "userInfo": {
+                            "id": data[0], 
+                            "name": {
+                                "first": data[1], 
+                                "last": data[2]
+                            }, 
+                            "programfag": data[3], 
+                            "registrert": data[4],
+                            "hash": data[5],
+                            "salt": data[6]
+                        },
+                        "leid": False
+                    }
+                
+                if data[7]:
+                    dataDic["leid"] = True
+                    dataDic["utlanInfo"] = {
+                                    "bokIDer": data[7].split(","),
+                                    "bokNavn": data[8].split(","),
+                                    "bokForfattere": data[9].split(","),
+                                    "bokSjangere": data[10].split(",")
+                                }
+
+                return jsonify(dataDic)
+            else:
+                return jsonify({"error": "No data found"}), 404
+        elif ("elevNavn" and "hash") in request.headers:
+            fullNavn = request.headers["elevNavn"]
+            fullNavnLst = fullNavn.split(" ")
+            try:
+                db = mysql.connector.connect(**sqlConfig)
+                cursor = db.cursor()
+
+                query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
+
+                cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
+                data = cursor.fetchone()
+            except mysql.connector.Error as e:
+                db = None
+                return jsonify({"error": f"mysql error: {e}"})
+            finally:
+                if db != None and db.is_connected():
+                    cursor.close()
+                    db.close()
+
+            if data:
+                dataDic = {
+                        "elevID": data[0]
                 }
-            
-            if data[7]:
-                dataDic["leid"] = True
-                dataDic["utlanInfo"] = {
-                                "bokIDer": data[7].split(","),
-                                "bokNavn": data[8].split(","),
-                                "bokForfattere": data[9].split(","),
-                                "bokSjangere": data[10].split(",")
-                            }
 
-            return jsonify(dataDic)
+                return jsonify(dataDic)
+            else:
+                return jsonify({"error": "No data found"}), 404
+        elif "elevNavn" in request.headers:
+            fullNavn = request.headers["elevNavn"]
+            fullNavnLst = fullNavn.split(" ")
+
+            first = fullNavnLst[0]
+            last = fullNavnLst[1]
+            try:
+                db = mysql.connector.connect(**sqlConfig)
+                cursor = db.cursor()
+
+                query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
+                cursor.execute(query, (first, last))
+
+                data = cursor.fetchone()
+            except mysql.connector.Error as e:
+                db = None
+                return jsonify({"error": f"mysql error: {e}"})
+            finally:
+                if db != None and db.is_connected():
+                    cursor.close()
+                    db.close()
+
+            if data:
+                dataDic = {
+                    "id": data[0],
+                    "registrert": data[1],
+                    "salt": data[2]
+                }
+                return jsonify(dataDic)
+            else:
+                return jsonify({"error": "no data found"})
         else:
-            return jsonify({"error": "No data found"}), 404
-    elif ("elevNavn" and "hash") in request.headers:
-        fullNavn = request.headers["elevNavn"]
-        fullNavnLst = fullNavn.split(" ")
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
-
-            query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
-
-            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
-            data = cursor.fetchone()
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"mysql error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
-
-        if data:
-            dataDic = {
-                    "elevID": data[0]
-            }
-
-            return jsonify(dataDic)
-        else:
-            return jsonify({"error": "No data found"}), 404
-    elif "elevNavn" in request.headers:
-        fullNavn = request.headers["elevNavn"]
-        fullNavnLst = fullNavn.split(" ")
-
-        first = fullNavnLst[0]
-        last = fullNavnLst[1]
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
-
-            query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
-            cursor.execute(query, (first, last))
-
-            data = cursor.fetchone()
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"mysql error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
-
-        if data:
-            dataDic = {
-                "id": data[0],
-                "registrert": data[1],
-                "salt": data[2]
-            }
-            return jsonify(dataDic)
-        else:
-            return jsonify({"error": "no data found"})
+            return jsonify({"error": "Missing headers"})
     else:
-        return jsonify({"error": "Missing headers"})
+        postData = request.json
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "UPDATE elever \
+                    SET hash = %s, salt = %s, registrert = 't' \
+                    WHERE id = %s"
+            
+            cursor.execute(query, (postData["hash"], postData["salt"], postData["elevID"]))
+            db.commit()
+
+            return jsonify({"success": True})
+        except KeyError:
+            return jsonify({"error": "Wrong key"})
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"database error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
     
 @app.route("/elevNavn")
 def elevNavn():

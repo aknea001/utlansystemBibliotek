@@ -1,6 +1,7 @@
 from flask import Flask, session, render_template, url_for, request, redirect
 from dotenv import load_dotenv
 from os import getenv
+from secrets import token_hex
 import requests
 
 load_dotenv()
@@ -38,7 +39,7 @@ def login():
             return f"error connecting to API: {response.status_code}"
         
         if response.json()["registrert"] == "f":
-            return render_template("register.html")
+            return render_template("register.html", elevNavn=user)
         else:
             session["registrert"] = True
             return render_template("login.html", elevNavn=user)
@@ -141,9 +142,29 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     
-    user = request.form["user"]
+    user = request.form["elevNavn"]
     passwd = request.form["passwd"]
     passwdCheck = request.form["passwdCheck"]
+
+    if passwd != passwdCheck:
+        return "passwords not matching"
+    
+    salt = token_hex(32)
+
+    hashed = hash(passwd, salt)
+    
+    url = "http://localhost:8000/elev"
+
+    response = requests.get(url, headers={"elevNavn": user})
+
+    if response.status_code != 200:
+        return f"error connecting to database: {response.status_code}"
+    
+    elevID = response.json()["id"]
+
+    response = requests.post(url, json={"hash": hashed, "salt": salt, "elevID": elevID})
+
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(debug=True)
