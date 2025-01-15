@@ -13,16 +13,16 @@ sqlConfig = {
     "database": getenv("SQLDATABASE")
 }
 
-def elever(fornavn, etternavn, programfag):
+def elever(fornavn, etternavn, programfag, hashed, salt):
     try:
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
 
-        query = "INSERT INTO elever (fornavn, etternavn, programfag) \
+        query = "INSERT INTO elever (fornavn, etternavn, programfag, hash, salt) \
                 VALUES\
-                (%s, %s, %s)"
+                (%s, %s, %s, %s, %s)"
         
-        cursor.execute(query, (fornavn, etternavn, programfag))
+        cursor.execute(query, (fornavn, etternavn, programfag, hashed, salt))
         db.commit()
     except mysql.connector.Error as e:
         db = None
@@ -54,9 +54,11 @@ def addElever(count):
 
         programfag = str(trinn) + str(linje)
 
+        hashed, salt = addPassword()
+
         print(f"First: {first} \nLast: {last} \nProgramfag: {programfag}")
 
-        elever(first, last, programfag)
+        elever(first, last, programfag, hashed, salt)
 
 def passordHash(hash, salt, id):
     try:
@@ -79,20 +81,21 @@ def passordHash(hash, salt, id):
             cursor.close()
             db.close()
 
-def addPassword(count):
+def addPassword(count=None):
     import hashlib
     from secrets import token_hex
 
     passwd = "password"
-    for i in range(count):
-        salt = token_hex(32)
+    salt = token_hex(32)
 
-        flavorPass = passwd + str(salt)
+    flavorPass = passwd + str(salt)
 
-        hashObj = hashlib.sha256(flavorPass.encode())
-        hashed = hashObj.hexdigest()
+    hashObj = hashlib.sha256(flavorPass.encode())
+    hashed = hashObj.hexdigest()
 
-        passordHash(hashed, salt, i + 1)
+    return hashed, salt
+
+    #passordHash(hashed, salt, i + 1)
 
 def boker(navn, forfatter, sjanger, hylle):
     try:
@@ -155,4 +158,4 @@ def addBoker(count):
         boker(title, forfatter, sjanger, hylle)
 
 if __name__ == "__main__":
-    addPassword(22)
+    addElever(30)

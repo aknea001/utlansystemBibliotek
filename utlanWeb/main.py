@@ -119,7 +119,7 @@ def elevInfo():
             utlanLst.append(tempUtlanLst)
             tempUtlanLst = []
 
-    generateCover(bokNavn, bokForfattere, len(bokNavn))
+        generateCover(bokNavn, bokForfattere, len(bokNavn))
 
     return render_template("elevPage.html", navn=navn["first"], leid=data["leid"], utlan=utlanLst)
 
