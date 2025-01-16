@@ -105,7 +105,7 @@ def elev():
                 return jsonify({"error": "No data found"}), 404
         elif "elevNavn" in request.headers:
             fullNavn = request.headers["elevNavn"]
-            fullNavnLst = fullNavn.split(" ")
+            fullNavnLst = fullNavn.split(" ", 1)
 
             first = fullNavnLst[0]
             last = fullNavnLst[1]
