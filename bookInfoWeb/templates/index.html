@@ -7,28 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>{{ navn }}</h1>
-    <p>Forfatter: {{ forfatter }}</p>
-    <p>Sjanger: {{ sjanger }}</p>
-    <img style="height: 250px;" src="/static/cover.jpg" alt="">
-    {% if "leid" in session %}
-        <br><p>Elev:</p>
-        <p>{{ elevNavn }}</p>
-        <p>{{ elevProg }}</p> 
-        <form action="" method="POST">
-            <input value="Returner" type="submit" name="submit">
-        </form>
-    {% else %}
-        <p>Hylle: {{ hylle }}</p>
-        <form action="" method="POST">
-            <input placeholder="Elev Navn" type="text" name="elevNavn" id="navn" list="dataL" required><br>
-            <input placeholder="Dager" type="text" name="dager" required><br>
-            <input value="Lei Ut" type="submit" name="submit">
-        </form>
-
-        <datalist id="dataL"></datalist>
-
-        <script src="/static/index.js"></script>
-    {% endif %}
+    <h1>Legg til bøker</h1>
+    <form action="" method="POST">
+        <input placeholder="Bok Tittel" type="text" name="tittel">
+    </form>
 </body>
 </html>

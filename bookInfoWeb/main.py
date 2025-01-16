@@ -30,8 +30,15 @@ def generateCover(navn, forfatter):
     draw.text((xForf, yForf), forfatter, font=fontForf, fill=textColor)
     image.save("bookInfoWeb/static/cover.jpg")
 
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "GET":
+        return render_template("index.html")
+    
+    
+
 @app.route("/<bokID>", methods=["GET", "POST"])
-def index(bokID):
+def bokInfo(bokID):
     url = f"http://localhost:8000/bok/{bokID}"
 
     if request.method == "GET":
@@ -59,7 +66,7 @@ def index(bokID):
         else:
             session.clear()
 
-        return render_template("index.html", navn=navn, forfatter=forfatter, sjanger=sjanger, hylle=hylle, elevNavn=elevNavn, elevProg=programfag)
+        return render_template("bokInfo.html", navn=navn, forfatter=forfatter, sjanger=sjanger, hylle=hylle, elevNavn=elevNavn, elevProg=programfag)
     else:
         form = request.form
 
@@ -77,12 +84,12 @@ def index(bokID):
                 return f"error: {response.status_code}"
 
             response = requests.post(url, json={"elevID": elevID, "dager": dager})
-            return redirect(url_for("index", bokID=bokID))
+            return redirect(url_for("bokInfo", bokID=bokID))
         else:
             #print("returnerer")
 
             response = requests.post(url, json={"return": True})
-            return redirect(url_for("index", bokID=bokID))
+            return redirect(url_for("bokInfo", bokID=bokID))
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
