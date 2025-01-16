@@ -3,12 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
     <title>Document</title>
 </head>
+<header>
+    <a href="/" class="logo">My Library</a>
+    <nav>
+        <a href="/">Home</a>
+        {% if "elevID" in session %}
+            <a href="/profile">Profil</a>
+            <a href="/logout">Log ut</a>
+        {% else %}
+            <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+</header>
+<main>
 <body>
-    <a href="/">Home</a>
-    <h1>LOGIN</h1>
     <form action="/login" method="POST">
+        <h1>LOGIN</h1>
         {% if "registrert" not in session %}
             <input placeholder="Navn" type="text" name="navn" id="navn" list="dataL" required><br>
         {% else %}
@@ -22,5 +35,6 @@
     <datalist id="dataL"></datalist>
 
     <script src="/static/index.js"></script>
+</main>
 </body>
 </html>

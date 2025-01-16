@@ -3,15 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
     <title>:3</title>
 </head>
+<header>
+    <a href="/" class="logo">My Library</a>
+    <nav>
+        <a href="/">Home</a>
+        {% if "elevID" in session %}
+            <a href="/profile">Profil</a>
+            <a href="/logout">Log ut</a>
+        {% else %}
+            <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+</header>
+<main>
 <body>
     {% if "elevID" in session %}
         <p>Welcome back {{ first }}</p>
-        <a href="/profile">Profil</a>
-        <a href="/logout">Log ut</a>
     {% else %}
-        <a href="/login">Login</a>
+        <p>NOT LOGGED IN WHATT</p>
     {% endif %}
+</main>
 </body>
 </html>
