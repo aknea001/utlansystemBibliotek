@@ -9,7 +9,13 @@
 <body>
     <h1>Legg til bøker</h1>
     <form action="" method="POST">
-        <input placeholder="Bok Tittel" type="text" name="tittel">
+        <input placeholder="Bok Tittel / ISBN" type="text" name="tittel" required>
+        {% if "tittel" in session %}
+            <input placeholder="Forfatter" type="text" name="forfatter">
+            <input placeholder="Sjanger" type="text" name="sjanger">
+        {% endif %}
+
+        <input type="submit">
     </form>
 </body>
 </html>

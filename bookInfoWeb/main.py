@@ -34,8 +34,14 @@ def generateCover(navn, forfatter):
 def index():
     if request.method == "GET":
         return render_template("index.html")
+
+    try:
+        tittel = int(request.form["tittel"])
+    except ValueError:
+        tittel = request.form["tittel"]
     
-    
+    if "forfatter" not in request.form:
+        pass
 
 @app.route("/<bokID>", methods=["GET", "POST"])
 def bokInfo(bokID):
