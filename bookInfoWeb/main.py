@@ -72,7 +72,7 @@ def index(bokID):
             response = requests.get("http://localhost:8000/elev", headers={"elevNavn": elevNavn})
 
             if response.status_code == 200:
-                elevID = response.json()[0]
+                elevID = response.json()["id"]
             else:
                 return f"error: {response.status_code}"
 

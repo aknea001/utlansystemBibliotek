@@ -169,9 +169,13 @@ def elevNavn():
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
 
-        query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s LIMIT 4"
+        if "fornavn" not in request.headers:
+            query = "SELECT fornavn, etternavn FROM elever WHERE fornavn LIKE %s LIMIT 4"
+            cursor.execute(query, (f"{request.headers['searchQuery']}%", ))
+        else:
+            query = "SELECT fornavn, etternavn FROM elever WHERE fornavn = %s AND etternavn LIKE %s LIMIT 4"
+            cursor.execute(query, (request.headers["fornavn"], f"{request.headers['searchQuery']}%"))
 
-        cursor.execute(query, (f"{request.headers['searchQuery']}%", ))
         data = cursor.fetchall()
     except mysql.connector.Error as e:
         db = None
