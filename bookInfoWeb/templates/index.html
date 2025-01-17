@@ -15,10 +15,25 @@
             <input value="{{ sjanger }}" placeholder="Sjanger" type="text" name="sjanger"><br>
             <input value="Legg til" type="submit">
         {% else %}
-            <input value="Søk" type="submit">
+            <input onclick="changeSub()" type="checkbox" name="skipSearch" id="skipSearch">
+            <label for="skipSearch">Skriv info manuelt</label><br>
+            <input value="Søk" type="submit" id="submit">
         {% endif %}
     </form>
 
     <a href="/clear">clear session</a>
+
+    <script>
+        const skip = document.getElementById("skipSearch")
+        const submit = document.getElementById("submit")
+
+        function changeSub() {
+            if (skip.checked) {
+                submit.value = "Neste"
+            } else {
+                submit.value = "Søk"
+            }
+        }
+    </script>
 </body>
 </html>

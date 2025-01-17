@@ -49,6 +49,11 @@ def index():
     if request.method == "GET":
         return render_template("index.html")
     
+    if "skipSearch" in request.form:
+        tittel = request.form["tittel"]
+        session["tittel"] = tittel
+        return render_template("index.html", tittel=tittel)
+    
     if "forfatter" not in request.form:
         tittel = str(request.form["tittel"]).strip().replace(" ", "+")
 
