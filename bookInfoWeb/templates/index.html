@@ -9,13 +9,16 @@
 <body>
     <h1>Legg til bøker</h1>
     <form action="" method="POST">
-        <input placeholder="Bok Tittel / ISBN" type="text" name="tittel" required>
+        <input value="{{ tittel }}" placeholder="Bok Tittel / ISBN" type="text" name="tittel"><br>
         {% if "tittel" in session %}
-            <input placeholder="Forfatter" type="text" name="forfatter">
-            <input placeholder="Sjanger" type="text" name="sjanger">
+            <input value="{{ forfatter }}" placeholder="Forfatter" type="text" name="forfatter"><br>
+            <input value="{{ sjanger }}" placeholder="Sjanger" type="text" name="sjanger"><br>
+            <input value="Legg til" type="submit">
+        {% else %}
+            <input value="Søk" type="submit">
         {% endif %}
-
-        <input type="submit">
     </form>
+
+    <a href="/clear">clear session</a>
 </body>
 </html>

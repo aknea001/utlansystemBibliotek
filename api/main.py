@@ -283,5 +283,34 @@ def bok(bokID):
                 cursor.close()
                 db.close()
 
+@app.route("/bok", methods=["GET", "POST"])
+def boker():
+    if request.method == "GET":
+        return jsonify({"error": "no get handling"})
+    else:
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "INSERT INTO boker (navn, forfatter, sjanger, hylle) \
+                    VALUES \
+                    (%s, %s, %s, %s)"
+
+            postData = request.json
+
+            cursor.execute(query, (postData["tittel"], postData["forfatter"], postData["sjanger"], postData["hylle"]))
+            db.commit()
+
+            return jsonify({"success": True})
+        except KeyError:
+            return jsonify({"error": "Wrong Key"})
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"Database error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)

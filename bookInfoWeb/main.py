@@ -2,6 +2,8 @@ from flask import Flask, render_template, session, request, redirect, url_for
 from dotenv import load_dotenv
 from os import getenv
 import requests
+from random import choice, randint
+from string import ascii_uppercase
 
 load_dotenv()
 
@@ -30,18 +32,83 @@ def generateCover(navn, forfatter):
     draw.text((xForf, yForf), forfatter, font=fontForf, fill=textColor)
     image.save("bookInfoWeb/static/cover.jpg")
 
+def generateHylle():
+    hylleTall = randint(1, 99)
+
+    if hylleTall < 10:
+        hylleTall = "0" + str(hylleTall)
+
+    hylleBokstav = choice(ascii_uppercase)
+
+    hylle = str(hylleTall) + hylleBokstav
+
+    return hylle
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
         return render_template("index.html")
-
-    try:
-        tittel = int(request.form["tittel"])
-    except ValueError:
-        tittel = request.form["tittel"]
     
     if "forfatter" not in request.form:
-        pass
+        tittel = str(request.form["tittel"]).strip().replace(" ", "+")
+
+        if len(tittel) == 10 or 13:
+            try:
+                int(tittel)
+
+                url = f"https://openlibrary.org/isbn/{tittel}.json"
+
+                response = requests.get(url)
+
+                if response.status_code == 200:
+                    tittel = str(response.json()["title"]).strip().replace(" ", "+")
+                else:
+                    return f"error: {response.status_code}"
+            except ValueError:
+                pass
+
+        url = f"https://openlibrary.org/search.json?q={tittel}"
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            return f"error: {response.status_code}"
+        
+        if response.json()["docs"]:
+            docs = response.json()["docs"][0]
+
+            forfatter = docs["author_name"][0]
+            sjanger = choice(docs["subject"])
+        else:
+            forfatter = ""
+            sjanger = ""
+
+        tittel = tittel.replace("+", " ")
+        session["tittel"] = tittel
+
+        return render_template("index.html", tittel=tittel, forfatter=forfatter, sjanger=sjanger)
+
+    form = request.form
+    tittel = str(form["tittel"])
+    forfatter = str(form["forfatter"])
+    sjanger = str(form["sjanger"])
+
+    hylle = generateHylle()
+
+    url = "http://localhost:8000/bok"
+
+    response = requests.post(url, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+
+    session.clear()
+
+    if "success" in response.json():
+        return redirect(url_for("index"))
+    
+    return response.json()
+    
+@app.route("/clear")
+def clear():
+    session.clear()
+    return redirect(url_for("index"))
 
 @app.route("/<bokID>", methods=["GET", "POST"])
 def bokInfo(bokID):
