@@ -13,15 +13,14 @@
         {% if "tittel" in session %}
             <input value="{{ forfatter }}" placeholder="Forfatter" type="text" name="forfatter"><br>
             <input value="{{ sjanger }}" placeholder="Sjanger" type="text" name="sjanger"><br>
-            <input value="Legg til" type="submit">
+            <input value="Legg til" type="submit"><br>
+            <input onclick="clear()" value="Gå tilbake for å søke" type="submit">
         {% else %}
             <input onclick="changeSub()" type="checkbox" name="skipSearch" id="skipSearch">
             <label for="skipSearch">Skriv info manuelt</label><br>
             <input value="Søk" type="submit" id="submit">
         {% endif %}
     </form>
-
-    <a href="/clear">clear session</a>
 
     <script>
         const skip = document.getElementById("skipSearch")
@@ -33,6 +32,10 @@
             } else {
                 submit.value = "Søk"
             }
+        }
+
+        function clear() {
+            window.location = "/clear"
         }
     </script>
 </body>

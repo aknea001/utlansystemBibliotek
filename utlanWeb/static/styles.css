@@ -75,7 +75,7 @@ h1 {
     margin-top: 20px; /* Add space below the header */
     margin-bottom: 15px;
     font-size: 28px;
-    text-align: center;
+    /* text-align: center; */
     color: #333;
 }
 
