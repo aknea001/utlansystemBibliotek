@@ -108,7 +108,7 @@ def index():
 
     if "success" in response.json():
         makeQR(response.json()["id"])
-        return redirect(url_for("index"))
+        return render_template("index.html", qrcode=True, gammelTittel=tittel)
     
     return response.json()
     

@@ -22,6 +22,10 @@
         {% endif %}
     </form>
 
+    {% if qrcode %}
+        <p>Lagde QR kode for {{ gammelTittel }}</p>
+    {% endif %}
+
     <script>
         const skip = document.getElementById("skipSearch")
         const submit = document.getElementById("submit")
