@@ -301,7 +301,7 @@ def boker():
             cursor.execute(query, (postData["tittel"], postData["forfatter"], postData["sjanger"], postData["hylle"]))
             db.commit()
 
-            return jsonify({"success": True})
+            return jsonify({"success": True, "id": cursor.lastrowid})
         except KeyError:
             return jsonify({"error": "Wrong Key"})
         except mysql.connector.Error as e:

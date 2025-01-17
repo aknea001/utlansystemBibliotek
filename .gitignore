@@ -2,3 +2,5 @@
 .venv
 utlanWeb/static/cover*
 testShit
+__pycache__
+qrCode.png

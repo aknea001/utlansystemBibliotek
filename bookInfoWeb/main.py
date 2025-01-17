@@ -4,6 +4,7 @@ from os import getenv
 import requests
 from random import choice, randint
 from string import ascii_uppercase
+from qrMaker import makeQR
 
 load_dotenv()
 
@@ -106,6 +107,7 @@ def index():
     session.clear()
 
     if "success" in response.json():
+        makeQR(response.json()["id"])
         return redirect(url_for("index"))
     
     return response.json()
