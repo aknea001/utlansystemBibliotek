@@ -33,7 +33,16 @@
                 {% endfor %}
             </div>
         </div>
+
+        <div style="display: flex; justify-content: center; flex-direction: row; align-items: baseline; margin-top: 20px;">
+            {% if page != 1 %}
+                <a href="/?page={{ page - 1 }}"><-</a>
+            {% endif %}
+            <p>{{ page }}</p>
+            <a href="/?page={{ page + 1 }}">-></a>
+        </div>
     {% else %}
+        <p>Nothing here..</p>
         <script>
             window.location = "/"
         </script>
