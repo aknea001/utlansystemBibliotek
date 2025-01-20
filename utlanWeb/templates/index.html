@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/grid.css">
     <title>:3</title>
 </head>
 <header>
@@ -21,9 +22,21 @@
 <main>
 <body>
     {% if boker %}
-        {% for i in boker %}
-            <p>{{ i[1] }} Av {{ i[2] }}</p>
-        {% endfor %}
+        <div class="outerGrid">
+            <div class="grid-container">
+                {% for i in boker %}
+                    <div class="grid-item">
+                        <p class="headline"><b>{{ i[1] }}</b></p>
+                        <img src="/static/cover.jpg" alt="Cover">
+                        <p class="subtext">av {{ i[2] }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <script>
+            window.location = "/"
+        </script>
     {% endif %}
 </main>
 </body>
