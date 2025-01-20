@@ -20,10 +20,10 @@
 </header>
 <main>
 <body>
-    {% if "elevID" in session %}
-        <p>Welcome back {{ first }}</p>
-    {% else %}
-        <p>NOT LOGGED IN WHATT</p>
+    {% if boker %}
+        {% for i in boker %}
+            <p>{{ i[1] }} Av {{ i[2] }}</p>
+        {% endfor %}
     {% endif %}
 </main>
 </body>
