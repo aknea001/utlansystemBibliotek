@@ -286,7 +286,23 @@ def bok(bokID):
 @app.route("/bok", methods=["GET", "POST"])
 def boker():
     if request.method == "GET":
-        return jsonify({"error": "no get handling"})
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT * FROM boker LIMIT %s,8"
+
+            cursor.execute(query, (int(request.headers["page"]), ))
+            data = cursor.fetchall()
+
+            return jsonify(data)
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"database error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
     else:
         try:
             db = mysql.connector.connect(**sqlConfig)
