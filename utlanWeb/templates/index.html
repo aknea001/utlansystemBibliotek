@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="/static/grid.css">
+    <link rel="stylesheet" href="/static/bookInfo.css">
     <title>:3</title>
 </head>
 <header>
@@ -25,7 +26,7 @@
         <div class="outerGrid">
             <div class="grid-container">
                 {% for i in boker %}
-                    <button class="grid-item">
+                    <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', 'cover.jpg')" class="grid-item">
                         <p class="headline"><b>{{ i[1] }}</b></p>
                         <img src="/static/cover.jpg" alt="Cover">
                         <p class="subtext">av {{ i[2] }}</p>
@@ -47,9 +48,11 @@
     {% else %}
         <p>Nothing here..</p>
         <script>
-            window.location = "/"
+            window.location = "/?page=1"
         </script>
     {% endif %}
+
+    <script src="/static/book.js"></script>
 </main>
 </body>
 </html>

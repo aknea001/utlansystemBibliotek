@@ -1,0 +1,17 @@
+.backdrop {
+    z-index: 1;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.bookInfo {
+    z-index: 2;
+    background-color: white;
+}
