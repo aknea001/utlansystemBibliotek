@@ -25,22 +25,23 @@
         <div class="outerGrid">
             <div class="grid-container">
                 {% for i in boker %}
-                    <div class="grid-item">
+                    <button class="grid-item">
                         <p class="headline"><b>{{ i[1] }}</b></p>
                         <img src="/static/cover.jpg" alt="Cover">
                         <p class="subtext">av {{ i[2] }}</p>
-                    </div>
+                    </button>
                 {% endfor %}
             </div>
         </div>
 
         <div style="display: flex; justify-content: center; flex-direction: row; align-items: baseline; margin-top: 20px;">
             {% if page != 1 %}
-                <a href="/?page={{ page - 1 }}"><-</a>
+                <a style="margin-right: 10px;" href="/?page={{ page - 1 }}"><-</a>
             {% endif %}
             <p>{{ page }}</p>
-            <a href="/?page={{ page + 1 }}">-></a>
+            <a style="margin-left: 10px;" href="/?page={{ page + 1 }}">-></a>
         </div>
+
     {% else %}
         <p>Nothing here..</p>
         <script>

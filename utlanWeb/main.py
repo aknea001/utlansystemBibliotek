@@ -12,25 +12,25 @@ app.jinja_env.filters["zip"] = zip
 
 @app.route("/")
 def index():
-    if "page" not in request.args:
+    if "page" not in request.args or int(request.args["page"]) < 1:
         return redirect("/?page=1")
 
     session.pop("registrert", None)
 
     page = request.args["page"]
 
-    page = (int(page) - 1) * 8
+    conertedPage = (int(page) - 1) * 8
 
     url = "http://localhost:8000/bok"
 
-    response = requests.get(url, headers={"page": str(page)})
+    response = requests.get(url, headers={"page": str(conertedPage)})
     
     if response.status_code != 200:
         return f"oopsie: {response.status_code}"
     
     data = response.json()
 
-    return render_template("index.html", boker=data)
+    return render_template("index.html", boker=data, page=int(page))
 
 def hash(passwd, salt):
     import hashlib
