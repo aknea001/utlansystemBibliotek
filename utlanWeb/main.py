@@ -30,7 +30,13 @@ def index():
     
     data = response.json()
 
-    return render_template("index.html", boker=data, page=int(page))
+    if len(data) == 9:
+        del data[-1:]
+        nextPage = True
+    else:
+        nextPage = False
+
+    return render_template("index.html", boker=data, page=int(page), nextPage=nextPage)
 
 def hash(passwd, salt):
     import hashlib

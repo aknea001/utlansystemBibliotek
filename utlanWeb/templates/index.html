@@ -39,7 +39,9 @@
                 <a style="margin-right: 10px;" href="/?page={{ page - 1 }}"><-</a>
             {% endif %}
             <p>{{ page }}</p>
-            <a style="margin-left: 10px;" href="/?page={{ page + 1 }}">-></a>
+            {% if nextPage %}
+                <a style="margin-left: 10px;" href="/?page={{ page + 1 }}">-></a>
+            {% endif %}
         </div>
 
     {% else %}

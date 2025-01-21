@@ -290,7 +290,7 @@ def boker():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "SELECT * FROM boker LIMIT %s,8"
+            query = "SELECT * FROM boker LIMIT %s,9"
 
             cursor.execute(query, (int(request.headers["page"]), ))
             data = cursor.fetchall()
