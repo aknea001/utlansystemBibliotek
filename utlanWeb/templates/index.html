@@ -23,6 +23,9 @@
 <main>
 <body>
     {% if boker %}
+        <form style="display: flex; justify-content: center;" onsubmit="redirect(event)">
+            <input placeholder="Search..." style="width: 500px;" type="text" id="searchQuery">
+        </form>
         <div class="outerGrid">
             <div class="grid-container">
                 {% for i in boker %}
@@ -37,11 +40,11 @@
 
         <div style="display: flex; justify-content: center; flex-direction: row; align-items: baseline; margin-top: 20px;">
             {% if page != 1 %}
-                <a style="margin-right: 10px;" href="/?page={{ page - 1 }}"><-</a>
+                <button style="margin-right: 10px;" onclick="redirect(event, '{{ page }}', -1)"><-</button>
             {% endif %}
             <p>{{ page }}</p>
             {% if nextPage %}
-                <a style="margin-left: 10px;" href="/?page={{ page + 1 }}">-></a>
+                <button style="margin-left: 10px;" onclick="redirect(event, '{{ page }}', 1)">-></button>
             {% endif %}
         </div>
 
@@ -53,6 +56,23 @@
     {% endif %}
 
     <script src="/static/book.js"></script>
+    <script>
+        function redirect(e, page=null, newPage=null) {
+            e.preventDefault()
+            const currentLoc = new URL(window.location.href)
+
+            if (!page) {
+                const searchInput = document.getElementById("searchQuery")
+                currentLoc.searchParams.set("search", searchInput.value)
+            } else if (newPage > 0) {
+                currentLoc.searchParams.set("page", parseInt(page) + 1)
+            } else {
+                currentLoc.searchParams.set("page", parseInt(page) - 1)
+            }
+
+            window.location = currentLoc
+        }
+    </script>
 </main>
 </body>
 </html>
