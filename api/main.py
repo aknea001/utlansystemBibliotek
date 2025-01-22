@@ -290,9 +290,18 @@ def boker():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "SELECT * FROM boker LIMIT %s,9"
+            if "searchQuery" not in request.headers:
+                query = "SELECT * FROM boker LIMIT %s,9"
 
-            cursor.execute(query, (int(request.headers["page"]), ))
+                cursor.execute(query, (int(request.headers["page"]), ))
+                data = cursor.fetchall()
+
+                return jsonify(data)
+            
+            searchQuery = request.headers["searchQuery"]
+            query = "SELECT * FROM boker WHERE navn LIKE %s OR navn LIKE %s OR forfatter LIKE %s LIMIT %s,9"
+
+            cursor.execute(query, (f"{searchQuery}%", f"The {searchQuery}%", f"{searchQuery}%", int(request.headers["page"])))
             data = cursor.fetchall()
 
             return jsonify(data)
