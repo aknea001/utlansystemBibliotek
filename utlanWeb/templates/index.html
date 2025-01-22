@@ -65,8 +65,10 @@
                 const searchInput = document.getElementById("searchQuery")
 
                 if (searchInput.value == "") {
+                    currentLoc.searchParams.set("page", 1)
                     currentLoc.searchParams.delete("search")
                 } else {
+                    currentLoc.searchParams.set("page", 1)
                     currentLoc.searchParams.set("search", searchInput.value)
                 }
             } else if (newPage > 0) {

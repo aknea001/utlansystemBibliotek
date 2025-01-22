@@ -19,11 +19,14 @@ def index():
 
     page = request.args["page"]
 
-    conertedPage = (int(page) - 1) * 8
+    convertedPage = (int(page) - 1) * 8
 
     url = "http://localhost:8000/bok"
 
-    response = requests.get(url, headers={"page": str(conertedPage)})
+    if "search" in request.args:
+        response = requests.get(url, headers={"page": str(convertedPage), "searchQuery": request.args["search"]})
+    else:
+        response = requests.get(url, headers={"page": str(convertedPage)})
     
     if response.status_code != 200:
         return f"oopsie: {response.status_code}"
