@@ -23,8 +23,11 @@ def index():
 
     url = "http://localhost:8000/bok"
 
+    search = None
+
     if "search" in request.args:
-        response = requests.get(url, headers={"page": str(convertedPage), "searchQuery": request.args["search"]})
+        search = request.args["search"]
+        response = requests.get(url, headers={"page": str(convertedPage), "searchQuery": search})
     else:
         response = requests.get(url, headers={"page": str(convertedPage)})
     
@@ -39,7 +42,7 @@ def index():
     else:
         nextPage = False
 
-    return render_template("index.html", boker=data, page=int(page), nextPage=nextPage)
+    return render_template("index.html", boker=data, page=int(page), nextPage=nextPage, search=search)
 
 def hash(passwd, salt):
     import hashlib
