@@ -1,4 +1,4 @@
-function display(tittel, forfatter, hylle, img) {
+function display(tittel, forfatter, hylle, lant, img) {
     const backdrop = document.createElement("div")
     backdrop.classList.add("backdrop")
     backdrop.onclick = (e) => {
@@ -7,13 +7,28 @@ function display(tittel, forfatter, hylle, img) {
     }
 
     const bookInfo = document.createElement("div")
-    bookInfo.classList.add("bookInfo")
+    bookInfo.classList.add("popup-window")
     bookInfo.innerHTML = `
-        <p>${tittel} av ${forfatter}</p>
-        <img style="height: 500px; width: 350px;" src="/static/${img}" alt="">
-        <p>Hylle: ${hylle}</p>
+        <button class="popup-close" onclick="closePopup()">×</button>
+        <div class="popup-title">${tittel}</div>
+        <div class="popup-author">av ${forfatter}</div>
+        <img src="/static/${img}" alt="Book Cover" class="popup-image"><br>
     `
+
+    if (lant != "None") {
+        bookInfo.innerHTML += `
+        <div class="popup-status lent">Lånt</div>`
+    } else {
+        bookInfo.innerHTML += `
+        <div class="popup-status available">Tilgjengelig</div>
+        <div class="popup-shelf">Hylle: ${hylle}</div>`
+    }
 
     document.body.appendChild(backdrop)
     backdrop.appendChild(bookInfo)
+}
+
+function closePopup() {
+    const backdrop = document.querySelector(".backdrop")
+    backdrop.remove()
 }
