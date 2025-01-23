@@ -22,10 +22,14 @@
 </header>
 <main>
 <body>
+    <form style="display: flex; justify-content: center;" onsubmit="redirect(event)">
+        <input placeholder="Search..." style="width: 500px;" type="text" id="searchQuery">
+    </form>
+    {% if search %}
+        <p><b>Results for {{ search }}:</b></p>
+    {% endif %}
+
     {% if boker %}
-        <form style="display: flex; justify-content: center;" onsubmit="redirect(event)">
-            <input placeholder="Search..." style="width: 500px;" type="text" id="searchQuery">
-        </form>
         <div class="outerGrid">
             <div class="grid-container">
                 {% for i in boker %}
@@ -47,7 +51,8 @@
                 <button style="margin-left: 10px;" onclick="redirect(event, '{{ page }}', 1)">-></button>
             {% endif %}
         </div>
-
+    {% elif search %}
+        <br><p>Found nothing related to your search..</p>
     {% else %}
         <p>Nothing here..</p>
         <script>
