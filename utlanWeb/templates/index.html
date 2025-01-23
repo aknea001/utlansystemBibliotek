@@ -42,7 +42,7 @@
                     {% endif %}
                     <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', '{{ i[5] }}', 'cover.jpg')" class="grid-item" id="gridItem{{ i[0] }}">
                         <p class="headline"><b>{{ i[1] }}</b></p>
-                        <img src="/static/cover.jpg" alt="Cover">
+                        <img src="/static/cover{{ loop.index0 }}.jpg" alt="Cover">
                         <p class="subtext">av {{ i[2] }}</p>
                     </button>
                 {% endfor %}

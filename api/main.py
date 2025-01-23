@@ -301,6 +301,7 @@ def boker():
                 cursor.execute(query, (int(request.headers["page"]), ))
                 data = cursor.fetchall()
 
+                #Change to json so this shit is less scuffed
                 return jsonify(data)
             
             searchQuery = request.headers["searchQuery"]
@@ -318,6 +319,7 @@ def boker():
             cursor.execute(query, (f"{searchQuery}%", f"The {searchQuery}%", f"{searchQuery}%", f"% {searchQuery}%", int(request.headers["page"])))
             data = cursor.fetchall()
 
+            #Change to json so this shit is less scuffed
             return jsonify(data)
         except mysql.connector.Error as e:
             db = None

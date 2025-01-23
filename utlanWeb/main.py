@@ -10,6 +10,29 @@ app = Flask(__name__)
 app.secret_key = getenv("FLASKPASSWD")
 app.jinja_env.filters["zip"] = zip
 
+def generateCover(navn, forfattere, amount):
+    from PIL import Image, ImageDraw, ImageFont
+
+    for i in range(amount):
+        image = Image.open("bookInfoWeb/static/baseCover.jpg")
+        draw = ImageDraw.Draw(image)
+
+        fontNavn = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 50)
+        fontForf = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 36)
+        textColor = (0, 0, 0)
+
+        navnTextLength = draw.textlength(navn[i], fontNavn)
+        xNavn = (image.width - navnTextLength) / 2
+        yNavn = image.height / 5
+
+        forfTextLength = draw.textlength(forfattere[i], fontForf)
+        xForf = (image.width - forfTextLength) / 2
+        yForf = image.height / 3
+
+        draw.text((xNavn, yNavn), navn[i], font=fontNavn, fill=textColor)
+        draw.text((xForf, yForf), forfattere[i], font=fontForf, fill=textColor)
+        image.save(f"utlanWeb/static/cover{i}.jpg")
+
 @app.route("/")
 def index():
     if "page" not in request.args or int(request.args["page"]) < 1:
@@ -41,6 +64,17 @@ def index():
         nextPage = True
     else:
         nextPage = False
+
+    bokNavn = []
+    bokForfattere = []
+
+    #Change to json in API so this shit is less scuffed
+
+    for i in data:
+        bokNavn.append(i[1])
+        bokForfattere.append(str(i[2]))
+
+    generateCover(bokNavn, bokForfattere, len(bokNavn))
 
     return render_template("index.html", boker=data, page=int(page), nextPage=nextPage, search=search)
 
@@ -105,29 +139,6 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("index"))
-
-def generateCover(navn, forfattere, amount):
-    from PIL import Image, ImageDraw, ImageFont
-
-    for i in range(amount):
-        image = Image.open("bookInfoWeb/static/baseCover.jpg")
-        draw = ImageDraw.Draw(image)
-
-        fontNavn = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 50)
-        fontForf = ImageFont.truetype("fonts/DejaVuSans-Bold.ttf", 36)
-        textColor = (0, 0, 0)
-
-        navnTextLength = draw.textlength(navn[i], fontNavn)
-        xNavn = (image.width - navnTextLength) / 2
-        yNavn = image.height / 5
-
-        forfTextLength = draw.textlength(forfattere[i], fontForf)
-        xForf = (image.width - forfTextLength) / 2
-        yForf = image.height / 3
-
-        draw.text((xNavn, yNavn), navn[i], font=fontNavn, fill=textColor)
-        draw.text((xForf, yForf), forfattere[i], font=fontForf, fill=textColor)
-        image.save(f"utlanWeb/static/cover{i}.jpg")
 
 @app.route("/profile")
 def elevInfo():
