@@ -12,7 +12,7 @@ function display(tittel, forfatter, hylle, lant, img) {
         <button class="popup-close" onclick="closePopup()">×</button>
         <div class="popup-title">${tittel}</div>
         <div class="popup-author">av ${forfatter}</div>
-        <img src="/static/${img}" alt="Book Cover" class="popup-image"><br>
+        <img src="/static/covers/${img}" alt="Book Cover" class="popup-image"><br>
     `
 
     if (lant != "None") {

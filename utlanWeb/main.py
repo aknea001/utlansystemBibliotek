@@ -31,7 +31,7 @@ def generateCover(navn, forfattere, amount):
 
         draw.text((xNavn, yNavn), navn[i], font=fontNavn, fill=textColor)
         draw.text((xForf, yForf), forfattere[i], font=fontForf, fill=textColor)
-        image.save(f"utlanWeb/static/cover{i}.jpg")
+        image.save(f"utlanWeb/static/covers/cover{i}.jpg")
 
 @app.route("/")
 def index():
