@@ -291,7 +291,12 @@ def boker():
             cursor = db.cursor()
 
             if "searchQuery" not in request.headers:
-                query = "SELECT * FROM boker LIMIT %s,9"
+                query = "SELECT \
+                            b.*, \
+                            u.bokID \
+                        FROM boker b \
+                        LEFT JOIN utlan u ON b.id = u.bokID \
+                        LIMIT %s,9"
 
                 cursor.execute(query, (int(request.headers["page"]), ))
                 data = cursor.fetchall()
@@ -299,9 +304,18 @@ def boker():
                 return jsonify(data)
             
             searchQuery = request.headers["searchQuery"]
-            query = "SELECT * FROM boker WHERE navn LIKE %s OR navn LIKE %s OR forfatter LIKE %s LIMIT %s,9"
+            query = "SELECT \
+                            b.*, \
+                            u.bokID \
+                        FROM boker b \
+                        LEFT JOIN utlan u ON b.id = u.bokID \
+                        WHERE navn LIKE %s \
+                        OR navn LIKE %s \
+                        OR forfatter LIKE %s \
+                        OR forfatter LIKE %s \
+                        LIMIT %s,9"
 
-            cursor.execute(query, (f"{searchQuery}%", f"The {searchQuery}%", f"{searchQuery}%", int(request.headers["page"])))
+            cursor.execute(query, (f"{searchQuery}%", f"The {searchQuery}%", f"{searchQuery}%", f"% {searchQuery}%", int(request.headers["page"])))
             data = cursor.fetchall()
 
             return jsonify(data)

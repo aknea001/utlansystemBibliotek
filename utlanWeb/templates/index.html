@@ -33,7 +33,14 @@
         <div class="outerGrid">
             <div class="grid-container">
                 {% for i in boker %}
-                    <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', 'cover.jpg')" class="grid-item">
+                    {% if i[5] %}
+                        <style>
+                            #gridItem{{ i[0] }} {
+                                background-color: lightgray;
+                            }
+                        </style>
+                    {% endif %}
+                    <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', 'cover.jpg')" class="grid-item" id="gridItem{{ i[0] }}">
                         <p class="headline"><b>{{ i[1] }}</b></p>
                         <img src="/static/cover.jpg" alt="Cover">
                         <p class="subtext">av {{ i[2] }}</p>
