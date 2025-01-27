@@ -40,7 +40,7 @@
                             }
                         </style>
                     {% endif %}
-                    <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', '{{ i[5] }}', 'cover{{ loop.index0 }}.jpg', {{ session['elevID'] }})" class="grid-item" id="gridItem{{ i[0] }}">
+                    <button onclick="display('{{ i[1] }}', '{{ i[2] }}', '{{ i[4] }}', '{{ i[5] }}', 'cover{{ loop.index0 }}.jpg', {{ session['elevID'] }}, {{ i[0] }})" class="grid-item" id="gridItem{{ i[0] }}">
                         <p class="headline"><b>{{ i[1] }}</b></p>
                         <img src="/static/covers/cover{{ loop.index0 }}.jpg" alt="Cover">
                         <p class="subtext">av {{ i[2] }}</p>
