@@ -1,4 +1,4 @@
-function display(tittel, forfatter, hylle, lant, img) {
+function display(tittel, forfatter, hylle, lant, img, elevID) {
     const backdrop = document.createElement("div")
     backdrop.classList.add("backdrop")
     backdrop.onclick = (e) => {
@@ -20,8 +20,9 @@ function display(tittel, forfatter, hylle, lant, img) {
         <div class="popup-status lent">Lånt</div>`
     } else {
         bookInfo.innerHTML += `
+        <div class="popup-shelf">Hylle: ${hylle}</div>
         <div class="popup-status available">Tilgjengelig</div>
-        <div class="popup-shelf">Hylle: ${hylle}</div>`
+        <br><button onclick="nyRes(${elevID}, '${tittel}', '${forfatter}', '${hylle}')" class="popup-status reserver">Reserver</button>`
     }
 
     document.body.appendChild(backdrop)
@@ -31,4 +32,27 @@ function display(tittel, forfatter, hylle, lant, img) {
 function closePopup() {
     const backdrop = document.querySelector(".backdrop")
     backdrop.remove()
+}
+
+function websocketConnect() {
+    const socket = io('http://localhost:5050')
+    socket.on("connected", data => {
+        console.log(data.message)
+    })
+
+    return socket
+}
+
+function nyRes(elevID, tittel, forfatter, hylle) {
+    if (!elevID) {
+        window.location = "/login"
+        return
+    }
+
+    const socket = websocketConnect()
+
+    socket.emit("nyRes", {bokTittel: tittel, bokForfatter: forfatter, bokHylle: hylle}, () => {
+        socket.disconnect()
+        location.reload()
+    })
 }

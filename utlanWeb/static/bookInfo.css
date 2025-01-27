@@ -69,6 +69,10 @@
 .popup-status.available {
     background-color: #2ecc71; /* Green for available */
 }
+
+.popup-status.reserver {
+    background-color: #007BFF; /* Green for available */
+}
   
 /* Shelf styling */
 .popup-shelf {
