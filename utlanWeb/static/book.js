@@ -1,3 +1,26 @@
+function redirect(e, page=null, newPage=null) {
+    e.preventDefault()
+    const currentLoc = new URL(window.location.href)
+
+    if (!page) {
+        const searchInput = document.getElementById("searchQuery")
+
+        if (searchInput.value == "") {
+            currentLoc.searchParams.set("page", 1)
+            currentLoc.searchParams.delete("search")
+        } else {
+            currentLoc.searchParams.set("page", 1)
+            currentLoc.searchParams.set("search", searchInput.value)
+        }
+    } else if (newPage > 0) {
+        currentLoc.searchParams.set("page", parseInt(page) + 1)
+    } else {
+        currentLoc.searchParams.set("page", parseInt(page) - 1)
+    }
+
+    window.location = currentLoc
+}
+
 function display(tittel, forfatter, hylle, lant, img, elevID, bokID) {
     const backdrop = document.createElement("div")
     backdrop.classList.add("backdrop")
@@ -34,25 +57,52 @@ function closePopup() {
     backdrop.remove()
 }
 
-function websocketConnect() {
-    const socket = io('http://localhost:5050')
-    socket.on("connected", data => {
-        console.log(data.message)
-    })
-
-    return socket
-}
-
 function nyRes(elevID, bokID, tittel, forfatter, hylle) {
     if (!elevID) {
         window.location = "/login"
         return
     }
 
-    const socket = websocketConnect()
+    const websocket = new WebSocket("ws://localhost:5050")
 
-    socket.emit("nyRes", {elevID: elevID, bokID: bokID, bokTittel: tittel, bokForfatter: forfatter, bokHylle: hylle}, () => {
-        socket.disconnect()
+    websocket.addEventListener("open", () => {
+        const payload = {
+            "event": "nyRes",
+            "data": {
+                "elevID": elevID,
+                "bokID": bokID,
+                "tittel": tittel,
+                "forfatter": forfatter,
+                "hylle": hylle
+            }
+        }
+
+        websocket.send(JSON.stringify(payload))
+        websocket.close()
+        
         location.reload()
     })
 }
+
+// function websocketConnect() {
+//     const socket = io('http://localhost:5050')
+//     socket.on("connected", data => {
+//         console.log(data.message)
+//     })
+
+//     return socket
+// }
+
+// function nyRes(elevID, bokID, tittel, forfatter, hylle) {
+//     if (!elevID) {
+//         window.location = "/login"
+//         return
+//     }
+
+//     const socket = websocketConnect()
+
+//     socket.emit("nyRes", {elevID: elevID, bokID: bokID, bokTittel: tittel, bokForfatter: forfatter, bokHylle: hylle}, () => {
+//         socket.disconnect()
+//         location.reload()
+//     })
+// }
