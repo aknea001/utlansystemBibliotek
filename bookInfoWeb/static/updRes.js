@@ -13,9 +13,9 @@ websocket.addEventListener("message", ({ data }) => {
     const notifs = document.getElementById("notifs")
     const li = document.createElement("li")
 
-    li.innerHTML = `<b>${WSdata.tittel}</b> av ${WSdata.forfatter}, ${WSdata.hylle} - ${WSdata.elevID}
+    li.innerHTML = `<b>${WSdata.tittel}</b> av ${WSdata.forfatter}, ${WSdata.hylle}
     <button onclick="accept(this)">✓</button>  <button onclick="decline(this)">✘</button>`
-    li.setAttribute("wsData", data)
+    li.setAttribute("wsData", JSON.stringify(WSdata))
     notifs.appendChild(li)
 })
 
@@ -24,11 +24,13 @@ function accept(element) {
 
     const rawdata = JSON.parse(Lparent.getAttribute("wsData"))
 
+    console.log(rawdata)
+
     const payload = {
         "event": "updDB",
         "data": {
             "reservert": true,
-            "bokID": rawdata.data.bokID
+            "bokID": rawdata.bokID
         }
     }
 
@@ -46,7 +48,7 @@ function decline(element) {
         "event": "updDB",
         "data": {
             "reservert": false,
-            "bokID": rawdata.data.bokID
+            "bokID": rawdata.bokID
         }
     }
 

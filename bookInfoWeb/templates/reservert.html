@@ -7,7 +7,14 @@
 </head>
 <body>
     <h1>Reserverte bøker</h1>
-    <ul id="notifs"></ul>
+    <ul id="notifs">
+        {% for i in reservert %}
+            <li wsData='{{ i | tojson }}'>
+                <b>{{ i["tittel"] }}</b> av {{ i["forfatter"] }}, {{ i["hylle"] }}
+                <button onclick="accept(this)">✓</button>  <button onclick="decline(this)">✘</button>
+            </li>
+        {% endfor %}
+    </ul>
 
     <script src="/static/updRes.js"></script>
 </body>

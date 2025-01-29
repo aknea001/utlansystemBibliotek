@@ -119,7 +119,16 @@ def clear():
 
 @app.route("/reservert")
 def reservert():
-    return render_template("reservert.html")
+    url = "http://localhost:8000/bok/reservert"
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return str(response.status_code)
+    
+    data = response.json()
+
+    return render_template("reservert.html", reservert=data)
 
 @app.route("/<bokID>", methods=["GET", "POST"])
 def bokInfo(bokID):

@@ -353,5 +353,47 @@ def boker():
                 cursor.close()
                 db.close()
 
+@app.route("/bok/reservert", methods=["GET", "POST"])
+def reservert():
+    if request.method == "GET":
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+            
+            query = "SELECT \
+                        u.*, \
+                        b.navn, \
+                        b.forfatter, \
+                        b.hylle \
+                    FROM utlan u \
+                    LEFT JOIN boker b ON u.bokID = b.id \
+                    WHERE u.reservert = 't' \
+                    AND u.reservertKlar = 'f'"
+            
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+            dataLst = []
+
+            for i in data:
+                dic = {
+                    "elevID": i[2],
+                    "bokID": i[1],
+                    "tittel": i[7],
+                    "forfatter": i[8],
+                    "hylle": i[9]
+                }
+
+                dataLst.append(dic)
+
+            return jsonify(dataLst)
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"Database Error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
