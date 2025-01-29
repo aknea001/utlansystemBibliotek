@@ -15,17 +15,38 @@ websocket.addEventListener("message", ({ data }) => {
 
     li.innerHTML = `<b>${WSdata.tittel}</b> av ${WSdata.forfatter}, ${WSdata.hylle} - ${WSdata.elevID}
     <button onclick="accept(this)">✓</button>  <button onclick="decline(this)">✘</button>`
+    li.setAttribute("wsData", data)
     notifs.appendChild(li)
 })
 
 function accept(element) {
-    //api post request 
+    const Lparent = element.parentElement
 
-    (element.parentElement).remove()
+    data = JSON.parse(Lparent.getAttribute("wsData"))
+
+    const payload = {
+        "event": "updDB",
+        "data": {
+            "reservert": true,
+            "bokID": data.bokID
+        }
+    }
+
+    websocket.send(JSON.stringify(payload))
+
+    Lparent.remove()
 }
 
-function decline(element) {
-    //api post request 
+function decline(element, data) {
+    const payload = {
+        "event": "updDB",
+        "data": {
+            "reservert": false,
+            "bokID": JSON.parse(data).bokID
+        }
+    }
+
+    websocket.send(JSON.stringify(payload))
 
     (element.parentElement).remove()
 }
