@@ -1,27 +1,44 @@
-from flask import Flask
-from flask_socketio import SocketIO, emit
+import asyncio
+import json
 import requests
+from websockets.asyncio.server import broadcast, serve
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+connected = set()
 
-@socketio.on("connect")
-def connect():
-    print("New client connected")
-    emit("connected", {"message": "Connected to webSocket"})
+async def handler(websocket):
+    connected.add(websocket)
 
-@socketio.on("nyRes")
-def nyRes(data):
-    print(data)
+    try:
+        async for msg in websocket:
+            received = json.loads(msg)
 
-    url = f"http://localhost:8000/bok/{data["bokID"]}"
+            print(received)
 
-    res = requests.post(url, json={"elevID": data["elevID"], "dager": 2})
+            assert "event" in received
 
-    if res.status_code != 200:
-        return res.status_code
-    
-    emit("updateRes", {"info": data}, broadcast=True)
+            if received["event"] == "nyRes":
+                data = received["data"]
+
+                url = f"http://localhost:8000/bok/{data["bokID"]}"
+
+                res = requests.post(url, json={"elevID": data["elevID"], "dager": 2})
+
+                if res.status_code != 200:
+                    print(str(res.status_code))
+                    continue
+
+                sendDic = {
+                    "event": "updRes",
+                    "data": data
+                }
+
+                broadcast(connected, json.dumps(sendDic))
+    finally:
+        connected.remove(websocket)
+
+async def main():
+    async with serve(handler, "", 5050):
+        await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, port=5050)
+    asyncio.run(main())
