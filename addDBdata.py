@@ -158,4 +158,4 @@ def addBoker(count):
         boker(title, forfatter, sjanger, hylle)
 
 if __name__ == "__main__":
-    addElever(30)
+    pass
