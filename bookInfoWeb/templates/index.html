@@ -22,6 +22,8 @@
         {% endif %}
     </form>
 
+    <div class="notifications-container"></div>
+
     {% if qrcode %}
         <p>Lagde QR kode for {{ gammelTittel }}</p>
     {% endif %}
@@ -42,6 +44,6 @@
             window.location = "/clear"
         }
     </script>
-    <script src="/static/recvSocket.js"></script>
+    <script src="/static/updNotifs.js"></script>
 </body>
 </html>
