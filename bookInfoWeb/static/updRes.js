@@ -22,13 +22,13 @@ websocket.addEventListener("message", ({ data }) => {
 function accept(element) {
     const Lparent = element.parentElement
 
-    data = JSON.parse(Lparent.getAttribute("wsData"))
+    const rawdata = JSON.parse(Lparent.getAttribute("wsData"))
 
     const payload = {
         "event": "updDB",
         "data": {
             "reservert": true,
-            "bokID": data.bokID
+            "bokID": rawdata.data.bokID
         }
     }
 
@@ -37,16 +37,20 @@ function accept(element) {
     Lparent.remove()
 }
 
-function decline(element, data) {
+function decline(element) {
+    const Lparent = element.parentElement
+
+    const rawdata = JSON.parse(Lparent.getAttribute("wsData"))
+
     const payload = {
         "event": "updDB",
         "data": {
             "reservert": false,
-            "bokID": JSON.parse(data).bokID
+            "bokID": rawdata.data.bokID
         }
     }
 
     websocket.send(JSON.stringify(payload))
 
-    (element.parentElement).remove()
+    Lparent.remove()
 }
