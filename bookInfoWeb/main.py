@@ -117,6 +117,10 @@ def clear():
     session.clear()
     return redirect(url_for("index"))
 
+@app.route("/reservert")
+def reservert():
+    return render_template("reservert.html")
+
 @app.route("/<bokID>", methods=["GET", "POST"])
 def bokInfo(bokID):
     url = f"http://localhost:8000/bok/{bokID}"
