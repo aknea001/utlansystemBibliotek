@@ -33,6 +33,8 @@ async def handler(websocket):
                 }
 
                 broadcast(connected, json.dumps(sendDic))
+            elif received["event"] == "ping":
+                await websocket.send("\n\nPong!")
     finally:
         connected.remove(websocket)
 
