@@ -21,7 +21,7 @@ function redirect(e, page=null, newPage=null) {
     window.location = currentLoc
 }
 
-function display(tittel, forfatter, hylle, lant, img, elevID, bokID) {
+function display(tittel, forfatter, hylle, lant, img, bokID, elevID) {
     const backdrop = document.createElement("div")
     backdrop.classList.add("backdrop")
     backdrop.onclick = (e) => {
