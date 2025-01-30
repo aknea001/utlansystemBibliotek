@@ -34,8 +34,7 @@ async def handler(websocket):
 
                 broadcast(connected, json.dumps(sendDic))
             elif event == "updDB":
-                if data["reservert"] == False:
-                    res = requests.delete(url, json={"bokID": data["bokID"]})
+                res = requests.post(url, json={"klar": data["klar"], "bokID": data["bokID"]})
 
                 if res.status_code != 200:
                     print(str(res.status_code))

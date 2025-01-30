@@ -29,7 +29,7 @@ function accept(element) {
     const payload = {
         "event": "updDB",
         "data": {
-            "reservert": true,
+            "klar": true,
             "bokID": rawdata.bokID
         }
     }
@@ -47,7 +47,7 @@ function decline(element) {
     const payload = {
         "event": "updDB",
         "data": {
-            "reservert": false,
+            "klar": false,
             "bokID": rawdata.bokID
         }
     }

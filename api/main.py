@@ -353,7 +353,7 @@ def boker():
                 cursor.close()
                 db.close()
 
-@app.route("/bok/reservert", methods=["GET", "POST", "DELETE"])
+@app.route("/bok/reservert", methods=["GET", "POST"])
 def reservert():
     if request.method == "GET":
         try:
@@ -401,35 +401,33 @@ def reservert():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "INSERT INTO utlan (bokID, elevID, reservert, reservertKlar, sluttDato) \
-                    VALUES \
-                    (%s, %s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
+            if "klar" not in data:
+                query = "INSERT INTO utlan (bokID, elevID, reservert, reservertKlar, sluttDato) \
+                        VALUES \
+                        (%s, %s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
+                
+                cursor.execute(query, (data["bokID"], data["elevID"], "t", "f", 2))
+                db.commit()
+                
+                return jsonify({"Success": True})
             
-            cursor.execute(query, (data["bokID"], data["elevID"], "t", "f", 2))
-            db.commit()
-            
-            return jsonify({"Success": True})
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"Database Error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
-    elif request.method == "DELETE":
-        data = request.json
+            if data["klar"]:
+                query = "UPDATE utlan \
+                        SET reservertKlar = %s \
+                        WHERE bokID = %s and reservert = %s"
+                
+                cursor.execute(query, ("t", data["bokID"], "t"))
+                db.commit()
 
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
+                return jsonify({"success": True})
+            elif not data["klar"]:
+                query = "DELETE FROM utlan \
+                        WHERE bokID = %s and reservert = %s"
+                
+                cursor.execute(query, (data["bokID"], "t"))
+                db.commit()
 
-            query = "DELETE FROM utlan \
-                    WHERE bokID = %s and reservert = %s"
-            
-            cursor.execute(query, (data["bokID"], "t"))
-            db.commit()
-
-            return jsonify({"success": True})
+                return jsonify({"success": True})
         except mysql.connector.Error as e:
             db = None
             return jsonify({"error": f"Database Error: {e}"})
