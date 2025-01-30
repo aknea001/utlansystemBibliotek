@@ -353,7 +353,7 @@ def boker():
                 cursor.close()
                 db.close()
 
-@app.route("/bok/reservert", methods=["GET", "POST"])
+@app.route("/bok/reservert", methods=["GET", "POST", "DELETE"])
 def reservert():
     if request.method == "GET":
         try:
@@ -409,6 +409,27 @@ def reservert():
             db.commit()
             
             return jsonify({"Success": True})
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"Database Error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+    elif request.method == "DELETE":
+        data = request.json
+
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "DELETE FROM utlan \
+                    WHERE bokID = %s and reservert = %s"
+            
+            cursor.execute(query, (data["bokID"], "t"))
+            db.commit()
+
+            return jsonify({"success": True})
         except mysql.connector.Error as e:
             db = None
             return jsonify({"error": f"Database Error: {e}"})
