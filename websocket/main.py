@@ -15,12 +15,12 @@ async def handler(websocket):
             print(received)
 
             assert "event" in received
+            event = received["event"]
+            data = received["data"]
 
-            if received["event"] == "nyRes":
-                data = received["data"]
+            url = "http://localhost:8000/bok/reservert"
 
-                url = f"http://localhost:8000/bok/reservert"
-
+            if event == "nyRes":
                 res = requests.post(url, json={"bokID": data["bokID"], "elevID": data["elevID"]})
 
                 if res.status_code != 200:
@@ -33,7 +33,14 @@ async def handler(websocket):
                 }
 
                 broadcast(connected, json.dumps(sendDic))
-            elif received["event"] == "ping":
+            elif event == "updDB":
+                if data["reservert"] == False:
+                    res = requests.delete(url, json={"bokID": data["bokID"]})
+
+                if res.status_code != 200:
+                    print(str(res.status_code))
+                    continue
+            elif event == "ping":
                 await websocket.send("\n\nPong!")
     finally:
         connected.remove(websocket)
