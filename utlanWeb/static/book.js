@@ -78,9 +78,15 @@ function nyRes(elevID, bokID, tittel, forfatter, hylle) {
         }
 
         websocket.send(JSON.stringify(payload))
-        websocket.close()
-        
-        location.reload()
+    })
+
+    websocket.addEventListener("message", ({ data }) => {
+        const rawdata = JSON.parse(data)
+
+        if (rawdata.event == "updRes") {
+            websocket.close()
+            location.reload()
+        }
     })
 }
 
