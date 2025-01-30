@@ -249,15 +249,15 @@ def bok(bokID):
             return jsonify({"success": False, "error": str(e)})
 
         try:
-            query = "INSERT INTO utlan (bokID, elevID, sluttDato) \
+            query = "INSERT INTO utlan (bokID, elevID, reservert, sluttDato) \
                     VALUES \
-                    (%s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
+                    (%s, %s, %s DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
             
             postData = request.json
 
             #print(postData)
             
-            cursor.execute(query, (bokID, postData["elevID"], postData["dager"]))
+            cursor.execute(query, (bokID, postData["elevID"], "f", postData["dager"]))
             db.commit()
 
             return jsonify({"success": True})
@@ -387,6 +387,28 @@ def reservert():
                 dataLst.append(dic)
 
             return jsonify(dataLst)
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"Database Error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+    elif request.method == "POST":
+        data = request.json
+
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "INSERT INTO utlan (bokID, elevID, reservert, reservertKlar, sluttDato) \
+                    VALUES \
+                    (%s, %s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
+            
+            cursor.execute(query, (data["bokID"], data["elevID"], "t", "f", 2))
+            db.commit()
+            
+            return jsonify({"Success": True})
         except mysql.connector.Error as e:
             db = None
             return jsonify({"error": f"Database Error: {e}"})

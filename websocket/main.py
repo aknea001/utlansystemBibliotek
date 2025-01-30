@@ -19,9 +19,9 @@ async def handler(websocket):
             if received["event"] == "nyRes":
                 data = received["data"]
 
-                url = f"http://localhost:8000/bok/{data["bokID"]}"
+                url = f"http://localhost:8000/bok/reservert"
 
-                res = requests.post(url, json={"elevID": data["elevID"], "dager": 2})
+                res = requests.post(url, json={"bokID": data["bokID"], "elevID": data["elevID"]})
 
                 if res.status_code != 200:
                     print(str(res.status_code))
