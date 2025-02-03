@@ -251,7 +251,7 @@ def bok(bokID):
         try:
             query = "INSERT INTO utlan (bokID, elevID, reservert, sluttDato) \
                     VALUES \
-                    (%s, %s, %s DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
+                    (%s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
             
             postData = request.json
 
