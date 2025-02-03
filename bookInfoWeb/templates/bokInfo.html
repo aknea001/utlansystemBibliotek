@@ -19,16 +19,27 @@
             <input value="Returner" type="submit" name="submit">
         </form>
     {% else %}
-        <p>Hylle: {{ hylle }}</p>
+        {% if reservertNavn %}
+            <p><b>Reservert</b></p>
+        {% else %}
+            <p>Hylle: {{ hylle }}</p>
+        {% endif %}
+
         <form action="" method="POST">
-            <input placeholder="Elev Navn" type="text" name="elevNavn" id="navn" list="dataL" required><br>
+            {% if reservertNavn %}
+                <input placeholder="Elev Navn" value="{{ reservertNavn }}" type="text" name="elevNavn" id="navn" readonly><br>
+            {% else %}
+                <input placeholder="Elev Navn" type="text" name="elevNavn" id="navn" list="dataL" required><br>
+            {% endif %}
             <input placeholder="Dager" type="text" name="dager" required><br>
             <input value="Lei Ut" type="submit" name="submit">
         </form>
 
-        <datalist id="dataL"></datalist>
+        {% if not reservertNavn %}
+            <datalist id="dataL"></datalist>
 
-        <script src="/static/search.js"></script>
+            <script src="/static/search.js"></script>
+        {% endif %}
     {% endif %}
 </body>
 </html>
