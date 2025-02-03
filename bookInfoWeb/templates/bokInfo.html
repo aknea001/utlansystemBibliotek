@@ -28,8 +28,10 @@
         <form action="" method="POST">
             {% if reservertNavn %}
                 <input placeholder="Elev Navn" value="{{ reservertNavn }}" type="text" name="elevNavn" id="navn" readonly><br>
+                <input value="true" type="hidden" name="reservert">
             {% else %}
                 <input placeholder="Elev Navn" type="text" name="elevNavn" id="navn" list="dataL" required><br>
+                <input value="false" type="hidden" name="reservert">
             {% endif %}
             <input placeholder="Dager" type="text" name="dager" required><br>
             <input value="Lei Ut" type="submit" name="submit">

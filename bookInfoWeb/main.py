@@ -163,7 +163,10 @@ def bokInfo(bokID):
     else:
         form = request.form
 
-        #print(form)
+        print(form)
+
+        if form.get("reservert", None) == "true":
+            res = requests.post("http://localhost:8000/bok/reservert", json={"klar": False, "bokID": bokID})
 
         if form["submit"] == "Lei Ut":
             elevNavn = form["elevNavn"]
