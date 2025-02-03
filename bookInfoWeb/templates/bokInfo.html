@@ -6,7 +6,15 @@
     <link rel="stylesheet" href="/static/styles.css">
     <title>Document</title>
 </head>
+<header>
+    <a href="/" class="logo">My Library</a>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/reservert">Reserverte bøker</a>
+    </nav>
+</header>
 <body>
+
     <h1>{{ navn }}</h1>
     <p>Forfatter: {{ forfatter }}</p>
     <p>Sjanger: {{ sjanger }}</p>
@@ -47,11 +55,15 @@
             <input value="Lei Ut" type="submit" name="submit">
         </form>
 
+        <div class="notifications-container"></div>
+
         {% if not reservertNavn %}
             <datalist id="dataL"></datalist>
 
             <script src="/static/search.js"></script>
         {% endif %}
     {% endif %}
+
+    <script src="/static/updNotifs.js"></script>
 </body>
 </html>
