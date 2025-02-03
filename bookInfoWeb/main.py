@@ -159,7 +159,7 @@ def bokInfo(bokID):
         else:
             session.clear()
 
-        return render_template("bokInfo.html", navn=navn, forfatter=forfatter, sjanger=sjanger, hylle=hylle, elevNavn=elevNavn, elevProg=programfag, reservertNavn=elevNavn if responseJson["reservert"] else None)
+        return render_template("bokInfo.html", navn=navn, forfatter=forfatter, sjanger=sjanger, hylle=hylle, elevNavn=elevNavn, elevProg=programfag, reservertNavn=elevNavn if responseJson["reservertKlar"] else None, reservertIkkeKlar=responseJson["reservert"] and not responseJson["reservertKlar"])
     else:
         form = request.form
 

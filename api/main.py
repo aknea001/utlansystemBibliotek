@@ -203,7 +203,8 @@ def bok(bokID):
                         e.fornavn, \
                         e.etternavn, \
                         e.programfag, \
-                        u.reservert \
+                        u.reservert, \
+                        u.reservertKlar \
                     FROM boker b \
                     LEFT JOIN utlan u ON b.id = u.bokID \
                     LEFT JOIN elever e ON u.elevID = e.id \
@@ -223,6 +224,7 @@ def bok(bokID):
                     },
                     "leid": data[5] != None and data[9] == "f",
                     "reservert": data[9] == "t",
+                    "reservertKlar": data[10] == "t",
                     "elevInfo": {
                         "elevID": data[5],
                         "navn": {

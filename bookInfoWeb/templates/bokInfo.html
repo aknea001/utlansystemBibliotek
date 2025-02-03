@@ -31,9 +31,16 @@
                 <input value="true" type="hidden" name="reservert">
             {% else %}
                 <input placeholder="Elev Navn" type="text" name="elevNavn" id="navn" list="dataL" required><br>
-                <input value="false" type="hidden" name="reservert">
             {% endif %}
             <input placeholder="Dager" type="text" name="dager" required><br>
+
+            {% if reservertNavn %}
+                <input style="background-color: red;" value="Fjern reservation" type="submit" name="submit">
+            {% elif reservertIkkeKlar %}
+                <input value="true" type="hidden" name="reservert">
+            {% else %}
+                <input value="false" type="hidden" name="reservert">
+            {% endif %}
             <input value="Lei Ut" type="submit" name="submit">
         </form>
 
