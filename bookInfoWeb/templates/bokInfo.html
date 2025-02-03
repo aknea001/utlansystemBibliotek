@@ -20,7 +20,12 @@
         </form>
     {% else %}
         {% if reservertNavn %}
-            <p><b>Reservert</b></p>
+            <div style="display: flex; justify-content: center; align-items: center; margin-top: -30px;">
+                <p style="margin-top: 30px;">Reservert - </p>
+                <form action="" method="POST">
+                    <input style="background-color: red;" value="Fjern reservation" type="submit" name="submit">
+                </form>
+            </div>
         {% else %}
             <p>Hylle: {{ hylle }}</p>
         {% endif %}
@@ -34,9 +39,7 @@
             {% endif %}
             <input placeholder="Dager" type="text" name="dager" required><br>
 
-            {% if reservertNavn %}
-                <input style="background-color: red;" value="Fjern reservation" type="submit" name="submit">
-            {% elif reservertIkkeKlar %}
+            {% if reservertIkkeKlar %}
                 <input value="true" type="hidden" name="reservert">
             {% else %}
                 <input value="false" type="hidden" name="reservert">
