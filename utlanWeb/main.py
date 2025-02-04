@@ -93,7 +93,7 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     
-    url = "http://localhost:8000/elev"
+    url = "http://localhost:8000/getJWT"
     user = request.form["navn"]
 
     if "passwd" not in request.form:
@@ -110,25 +110,14 @@ def login():
     
     passwd = request.form["passwd"]
 
-    response = requests.get(url, headers={"elevNavn": str(user)})
+    response = requests.get(url, headers={"elevNavn": str(user), "passwd": str(passwd)})
 
     if response.status_code == 200:
-        salt = response.json()["salt"]
-    else:
-        return f"error: {response.status_code}"
-    
-    hashed = hash(passwd, salt)
-
-    response = requests.get(url, headers={"elevNavn": str(user), "hash": hashed})
-
-    if response.status_code == 200:
-        elevID = response.json()["elevID"]
+        session["accessToken"] = response.json()["accessToken"]
     elif response.status_code == 404:
         return "Wrong credentials"
     else:
         return f"error: {response.status_code}"
-    
-    session["elevID"] = elevID
 
     if "redirectUrl" in session:
         return redirect(session["redirectUrl"])

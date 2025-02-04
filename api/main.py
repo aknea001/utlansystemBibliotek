@@ -19,18 +19,49 @@ app.config["JWT_SECRET_KEY"] = getenv("JWTKEY")
 CORS(app)
 jwt = JWTManager(app)
 
+def hash(passwd, salt):
+    import hashlib
+
+    flavorPass = str(passwd) + str(salt)
+
+    hashObj = hashlib.sha256(flavorPass.encode())
+    hashed = hashObj.hexdigest()
+
+    return hashed
+
 @app.route("/getJWT")
 def genJWT():
-    if ("elevNavn" and "hash") in request.headers:
+    if ("elevNavn" and "passwd") in request.headers:
         fullNavn = request.headers["elevNavn"]
         fullNavnLst = fullNavn.split(" ")
+
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            print(f"{fullNavn[0]} {fullNavn[1]}")
+
+            query = "SELECT salt FROM elever WHERE fornavn = %s AND etternavn = %s"
+
+            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1]))
+            salt = cursor.fetchone()[0]
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        hashed = hash(request.headers["passwd"], salt)
+
         try:
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
             query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
 
-            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
+            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], hashed))
             data = cursor.fetchone()
         except mysql.connector.Error as e:
             db = None
