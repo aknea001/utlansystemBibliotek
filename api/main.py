@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import mysql.connector
 from dotenv import load_dotenv
 from os import getenv
@@ -14,128 +15,138 @@ sqlConfig = {
 }
 
 app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = getenv("JWTKEY")
 CORS(app)
+jwt = JWTManager(app)
+
+@app.route("/getJWT")
+def genJWT():
+    if ("elevNavn" and "hash") in request.headers:
+        fullNavn = request.headers["elevNavn"]
+        fullNavnLst = fullNavn.split(" ")
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
+
+            cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        if data:
+            dataDic = {
+                    "accessToken": create_access_token(str(data[0]))
+            }
+
+            return jsonify(dataDic)
+        else:
+            return jsonify({"error": "No data found"}), 404
+    elif "elevNavn" in request.headers:
+        fullNavn = request.headers["elevNavn"]
+        fullNavnLst = fullNavn.split(" ", 1)
+
+        first = fullNavnLst[0]
+        last = fullNavnLst[1]
+        try:
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
+
+            query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
+            cursor.execute(query, (first, last))
+
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
+
+        if data:
+            dataDic = {
+                "id": data[0],
+                "registrert": data[1],
+                "salt": data[2]
+            }
+            return jsonify(dataDic)
+        else:
+            return jsonify({"error": "no data found"}), 404
+    elif ("biblio" and "biblioToken") in request.headers:
+        if request.headers["biblioToken"] == getenv("biblioToken"):
+            return jsonify({"accessToken": create_access_token(str(request.headers["biblio"]))})
+        else:
+            return jsonify({"error": "no data found"}), 404
+    else:
+        return jsonify({"error": "Missing headers"})
 
 @app.route("/elev", methods=["GET", "POST"])
+@jwt_required()
 def elev():
     if request.method == "GET":
-        if "elevID" in request.headers:
-            elevID = int(request.headers["elevID"])
+        try:
+            elevID = get_jwt_identity()
 
-            try:
-                db = mysql.connector.connect(**sqlConfig)
-                cursor = db.cursor()
+            db = mysql.connector.connect(**sqlConfig)
+            cursor = db.cursor()
 
-                query = "SELECT\
-                            e.*, \
-                            GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
-                            GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
-                            GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
-                            GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
-                        FROM elever e \
-                        LEFT JOIN utlan u ON e.id = u.elevID \
-                        LEFT JOIN boker b ON u.bokID = b.id \
-                        WHERE e.id = %s \
-                        GROUP BY e.id;"
+            query = "SELECT\
+                        e.*, \
+                        GROUP_CONCAT(b.id SEPARATOR ',') AS bokIDer, \
+                        GROUP_CONCAT(b.navn SEPARATOR ',') AS bokNavn, \
+                        GROUP_CONCAT(IFNULL(b.forfatter, 'Ukjent Forfatter') SEPARATOR ',') AS bokForfattere, \
+                        GROUP_CONCAT(IFNULL(b.sjanger, 'Ukjent Sjanger') SEPARATOR ',') AS bokSjangere \
+                    FROM elever e \
+                    LEFT JOIN utlan u ON e.id = u.elevID \
+                    LEFT JOIN boker b ON u.bokID = b.id \
+                    WHERE e.id = %s \
+                    GROUP BY e.id;"
 
-                cursor.execute(query, (elevID, ))
-                data = cursor.fetchone()
-            except mysql.connector.Error as e:
-                db = None
-                return jsonify({"error": f"mysql error: {e}"})
-            finally:
-                if db != None and db.is_connected():
-                    cursor.close()
-                    db.close()
+            cursor.execute(query, (elevID, ))
+            data = cursor.fetchone()
+        except mysql.connector.Error as e:
+            db = None
+            return jsonify({"error": f"mysql error: {e}"})
+        finally:
+            if db != None and db.is_connected():
+                cursor.close()
+                db.close()
 
-            if data:
-                dataDic = {
-                        "userInfo": {
-                            "id": data[0], 
-                            "name": {
-                                "first": data[1], 
-                                "last": data[2]
-                            }, 
-                            "programfag": data[3], 
-                            "registrert": data[4],
-                            "hash": data[5],
-                            "salt": data[6]
-                        },
-                        "leid": False
-                    }
-                
-                if data[7]:
-                    dataDic["leid"] = True
-                    dataDic["utlanInfo"] = {
-                                    "bokIDer": data[7].split(","),
-                                    "bokNavn": data[8].split(","),
-                                    "bokForfattere": data[9].split(","),
-                                    "bokSjangere": data[10].split(",")
-                                }
-
-                return jsonify(dataDic)
-            else:
-                return jsonify({"error": "No data found"}), 404
-        elif ("elevNavn" and "hash") in request.headers:
-            fullNavn = request.headers["elevNavn"]
-            fullNavnLst = fullNavn.split(" ")
-            try:
-                db = mysql.connector.connect(**sqlConfig)
-                cursor = db.cursor()
-
-                query = "SELECT id FROM elever WHERE fornavn = %s AND etternavn = %s AND hash = %s"
-
-                cursor.execute(query, (fullNavnLst[0], fullNavnLst[1], request.headers["hash"]))
-                data = cursor.fetchone()
-            except mysql.connector.Error as e:
-                db = None
-                return jsonify({"error": f"mysql error: {e}"})
-            finally:
-                if db != None and db.is_connected():
-                    cursor.close()
-                    db.close()
-
-            if data:
-                dataDic = {
-                        "elevID": data[0]
+        if data:
+            dataDic = {
+                    "userInfo": {
+                        "id": data[0], 
+                        "name": {
+                            "first": data[1], 
+                            "last": data[2]
+                        }, 
+                        "programfag": data[3], 
+                        "registrert": data[4],
+                        "hash": data[5],
+                        "salt": data[6]
+                    },
+                    "leid": False
                 }
+            
+            if data[7]:
+                dataDic["leid"] = True
+                dataDic["utlanInfo"] = {
+                                "bokIDer": data[7].split(","),
+                                "bokNavn": data[8].split(","),
+                                "bokForfattere": data[9].split(","),
+                                "bokSjangere": data[10].split(",")
+                            }
 
-                return jsonify(dataDic)
-            else:
-                return jsonify({"error": "No data found"}), 404
-        elif "elevNavn" in request.headers:
-            fullNavn = request.headers["elevNavn"]
-            fullNavnLst = fullNavn.split(" ", 1)
-
-            first = fullNavnLst[0]
-            last = fullNavnLst[1]
-            try:
-                db = mysql.connector.connect(**sqlConfig)
-                cursor = db.cursor()
-
-                query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
-                cursor.execute(query, (first, last))
-
-                data = cursor.fetchone()
-            except mysql.connector.Error as e:
-                db = None
-                return jsonify({"error": f"mysql error: {e}"})
-            finally:
-                if db != None and db.is_connected():
-                    cursor.close()
-                    db.close()
-
-            if data:
-                dataDic = {
-                    "id": data[0],
-                    "registrert": data[1],
-                    "salt": data[2]
-                }
-                return jsonify(dataDic)
-            else:
-                return jsonify({"error": "no data found"})
+            return jsonify(dataDic)
         else:
-            return jsonify({"error": "Missing headers"})
+            return jsonify({"error": "No data found"}), 404
     else:
         postData = request.json
         try:
@@ -287,7 +298,7 @@ def bok(bokID):
                 cursor.close()
                 db.close()
 
-@app.route("/bok", methods=["GET", "POST"])
+@app.route("/bok", methods=["GET"])
 def boker():
     if request.method == "GET":
         try:
@@ -332,30 +343,36 @@ def boker():
             if db != None and db.is_connected():
                 cursor.close()
                 db.close()
-    else:
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
 
-            query = "INSERT INTO boker (navn, forfatter, sjanger, hylle) \
-                    VALUES \
-                    (%s, %s, %s, %s)"
+@app.route("/bok/add", methods=["POST"])
+@jwt_required()
+def addBoker():
+    if "biblio" not in get_jwt_identity():
+        return jsonify({"error": "Unauthorized"}), 403
 
-            postData = request.json
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
 
-            cursor.execute(query, (postData["tittel"], postData["forfatter"], postData["sjanger"], postData["hylle"]))
-            db.commit()
+        query = "INSERT INTO boker (navn, forfatter, sjanger, hylle) \
+                VALUES \
+                (%s, %s, %s, %s)"
 
-            return jsonify({"success": True, "id": cursor.lastrowid})
-        except KeyError:
-            return jsonify({"error": "Wrong Key"})
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"Database error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
+        postData = request.json
+
+        cursor.execute(query, (postData["tittel"], postData["forfatter"], postData["sjanger"], postData["hylle"]))
+        db.commit()
+
+        return jsonify({"success": True, "id": cursor.lastrowid})
+    except KeyError:
+        return jsonify({"error": "Wrong Key"})
+    except mysql.connector.Error as e:
+        db = None
+        return jsonify({"error": f"Database error: {e}"})
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
 
 @app.route("/bok/reservert", methods=["GET", "POST"])
 def reservert():

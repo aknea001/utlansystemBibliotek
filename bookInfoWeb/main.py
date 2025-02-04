@@ -48,6 +48,13 @@ def generateHylle():
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
+        res = requests.get("http://localhost:8000/getJWT", headers={"biblio": "biblio1", "biblioToken": getenv("biblioToken")})
+
+        if res.status_code != 200:
+            return f"Error getting access token: {res.status_code}"
+        
+        session["accessToken"] = res.json()["accessToken"]
+
         return render_template("index.html")
     
     if "skipSearch" in request.form:
@@ -100,10 +107,13 @@ def index():
 
     hylle = generateHylle()
 
-    url = "http://localhost:8000/bok"
+    url = "http://localhost:8000/bok/add"
 
-    response = requests.post(url, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+    response = requests.post(url, headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
 
+    if response.status_code != 200:
+        return response.json()
+    
     session.clear()
 
     if "success" in response.json():
