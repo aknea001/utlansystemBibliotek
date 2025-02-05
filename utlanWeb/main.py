@@ -91,6 +91,7 @@ def hash(passwd, salt):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
+        session.clear()
         return render_template("login.html")
     
     url = "http://localhost:8000/getJWT"
@@ -139,7 +140,10 @@ def elevInfo():
 
     response = requests.get(url, headers={"Authorization": f"Bearer {session["accessToken"]}"})
 
-    if response.status_code != 200:
+    if response.status_code == 401:
+        session.clear()
+        return redirect(url_for("elevInfo"))
+    elif response.status_code != 200:
         return f"error connecting to server: {response.status_code}"
     
     data = response.json()

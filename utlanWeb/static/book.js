@@ -57,7 +57,36 @@ function closePopup() {
     backdrop.remove()
 }
 
+// function APIcall(searchQuery, fornavn, callback) {
+//     xhr.open("GET", "http://localhost:8000/elevNavn")
+//     xhr.setRequestHeader("searchQuery", searchQuery)
+//     if (fornavn) {
+//         xhr.setRequestHeader("fornavn", fornavn)
+//     }
+//     xhr.send()
+//     xhr.responseType = "json"
+//     xhr.onload = () => {
+//         if (xhr.readyState == 4 && xhr.status == 200) {
+//             callback(xhr.response)
+//         } else {
+//             console.log(xhr.status)
+//         }
+//     }
+// }
+
 function nyRes(accessToken, bokID, tittel, forfatter, hylle) {
+    const xhr = new XMLHttpRequest()
+
+    xhr.open("GET", "http://localhost:8000/validateJWT")
+    xhr.setRequestHeader("Authorization", accessToken)
+    xhr.send()
+    xhr.responseType = "json"
+    xhr.onload = () => {
+        if (xhr.status != 200) {
+            window.location = "/login"
+        }
+    }
+
     if (!accessToken) {
         window.location = "/login"
         return

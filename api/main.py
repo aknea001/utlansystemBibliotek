@@ -114,6 +114,11 @@ def getJWT():
             return jsonify({"error": "no data found"}), 404
     else:
         return jsonify({"error": "Missing headers"})
+    
+@app.route("/validateJWT")
+@jwt_required()
+def validateJWT():
+    return jsonify({"valid": True})
 
 @app.route("/elev", methods=["GET", "POST"])
 @jwt_required()
