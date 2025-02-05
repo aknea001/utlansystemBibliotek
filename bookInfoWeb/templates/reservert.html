@@ -19,7 +19,7 @@
         {% for i in reservert %}
             <li wsData='{{ i | tojson }}'>
                 <b>{{ i["tittel"] }}</b> av {{ i["forfatter"] }}, {{ i["hylle"] }}
-                <button onclick="accept(this)">✓</button>  <button onclick="decline(this)">✘</button>
+                <button onclick="accept(this, `{{ session['accessToken'] }}`)">✓</button>  <button onclick="decline(this, `{{ session['accessToken'] }}`)">✘</button>
             </li>
         {% endfor %}
     </ul>

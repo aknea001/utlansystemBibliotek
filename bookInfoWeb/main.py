@@ -144,6 +144,8 @@ def reservert():
     
     data = response.json()
 
+    getJWT()
+
     return render_template("reservert.html", reservert=data)
 
 @app.route("/<bokID>", methods=["GET", "POST"])

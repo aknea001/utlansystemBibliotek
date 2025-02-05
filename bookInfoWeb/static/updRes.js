@@ -19,7 +19,7 @@ websocket.addEventListener("message", ({ data }) => {
     notifs.appendChild(li)
 })
 
-function accept(element) {
+function accept(element, accessToken) {
     const Lparent = element.parentElement
 
     const rawdata = JSON.parse(Lparent.getAttribute("wsData"))
@@ -28,6 +28,7 @@ function accept(element) {
 
     const payload = {
         "event": "updDB",
+        "accessToken": accessToken,
         "data": {
             "klar": true,
             "bokID": rawdata.bokID
@@ -39,13 +40,14 @@ function accept(element) {
     Lparent.remove()
 }
 
-function decline(element) {
+function decline(element, accessToken) {
     const Lparent = element.parentElement
 
     const rawdata = JSON.parse(Lparent.getAttribute("wsData"))
 
     const payload = {
         "event": "updDB",
+        "accessToken": accessToken,
         "data": {
             "klar": false,
             "bokID": rawdata.bokID

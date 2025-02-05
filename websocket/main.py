@@ -20,8 +20,10 @@ async def handler(websocket):
 
             url = "http://localhost:8000/bok/reservert"
 
+            headers = {"Authorization": f"Bearer {received["accessToken"]}"}
+
             if event == "nyRes":
-                res = requests.post(url, json={"bokID": data["bokID"], "accessToken": data["accessToken"]})
+                res = requests.post(url, json={"bokID": data["bokID"]}, headers=headers)
 
                 if res.status_code != 200:
                     print(str(res.status_code))
@@ -34,7 +36,7 @@ async def handler(websocket):
 
                 broadcast(connected, json.dumps(sendDic))
             elif event == "updDB":
-                res = requests.post(url, json={"klar": data["klar"], "bokID": data["bokID"]})
+                res = requests.post(f"{url}/update", json={"klar": data["klar"], "bokID": data["bokID"]}, headers=headers)
 
                 if res.status_code != 200:
                     print(str(res.status_code))

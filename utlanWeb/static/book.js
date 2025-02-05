@@ -68,8 +68,8 @@ function nyRes(accessToken, bokID, tittel, forfatter, hylle) {
     websocket.addEventListener("open", () => {
         const payload = {
             "event": "nyRes",
+            "accessToken": accessToken,
             "data": {
-                "accessToken": accessToken,
                 "bokID": bokID,
                 "tittel": tittel,
                 "forfatter": forfatter,
