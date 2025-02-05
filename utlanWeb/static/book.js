@@ -21,7 +21,7 @@ function redirect(e, page=null, newPage=null) {
     window.location = currentLoc
 }
 
-function display(tittel, forfatter, hylle, lant, img, bokID, elevID) {
+function display(tittel, forfatter, hylle, lant, img, bokID, accessToken) {
     const backdrop = document.createElement("div")
     backdrop.classList.add("backdrop")
     backdrop.onclick = (e) => {
@@ -45,7 +45,7 @@ function display(tittel, forfatter, hylle, lant, img, bokID, elevID) {
         bookInfo.innerHTML += `
         <div class="popup-shelf">Hylle: ${hylle}</div>
         <div class="popup-status available">Tilgjengelig</div>
-        <br><button onclick="nyRes(${elevID}, ${bokID}, '${tittel}', '${forfatter}', '${hylle}')" class="popup-status reserver">Reserver</button>`
+        <br><button onclick="nyRes(${accessToken}, ${bokID}, '${tittel}', '${forfatter}', '${hylle}')" class="popup-status reserver">Reserver</button>`
     
 
     document.body.appendChild(backdrop)
@@ -57,8 +57,8 @@ function closePopup() {
     backdrop.remove()
 }
 
-function nyRes(elevID, bokID, tittel, forfatter, hylle) {
-    if (!elevID) {
+function nyRes(accessToken, bokID, tittel, forfatter, hylle) {
+    if (!accessToken) {
         window.location = "/login"
         return
     }
@@ -69,7 +69,7 @@ function nyRes(elevID, bokID, tittel, forfatter, hylle) {
         const payload = {
             "event": "nyRes",
             "data": {
-                "elevID": elevID,
+                "accessToken": accessToken,
                 "bokID": bokID,
                 "tittel": tittel,
                 "forfatter": forfatter,
@@ -89,26 +89,3 @@ function nyRes(elevID, bokID, tittel, forfatter, hylle) {
         }
     })
 }
-
-// function websocketConnect() {
-//     const socket = io('http://localhost:5050')
-//     socket.on("connected", data => {
-//         console.log(data.message)
-//     })
-
-//     return socket
-// }
-
-// function nyRes(elevID, bokID, tittel, forfatter, hylle) {
-//     if (!elevID) {
-//         window.location = "/login"
-//         return
-//     }
-
-//     const socket = websocketConnect()
-
-//     socket.emit("nyRes", {elevID: elevID, bokID: bokID, bokTittel: tittel, bokForfatter: forfatter, bokHylle: hylle}, () => {
-//         socket.disconnect()
-//         location.reload()
-//     })
-// }

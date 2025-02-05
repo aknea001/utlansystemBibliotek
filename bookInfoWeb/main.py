@@ -45,16 +45,17 @@ def generateHylle():
 
     return hylle
 
+def getJWT():
+    res = requests.get("http://localhost:8000/getJWT", headers={"biblio": "biblio1", "biblioToken": getenv("biblioToken")})
+
+    if res.status_code != 200:
+        return f"Error getting access token: {res.status_code}"
+    
+    session["accessToken"] = res.json()["accessToken"]
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        res = requests.get("http://localhost:8000/getJWT", headers={"biblio": "biblio1", "biblioToken": getenv("biblioToken")})
-
-        if res.status_code != 200:
-            return f"Error getting access token: {res.status_code}"
-        
-        session["accessToken"] = res.json()["accessToken"]
-
         return render_template("index.html")
     
     if "skipSearch" in request.form:
@@ -107,9 +108,14 @@ def index():
 
     hylle = generateHylle()
 
-    url = "http://localhost:8000/bok/add"
+    url = "http://localhost:8000/bok"
 
-    response = requests.post(url, headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+    for i in range(2):
+        try:
+            response = requests.post(url, headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+            break
+        except KeyError:
+            getJWT()
 
     if response.status_code != 200:
         return response.json()
@@ -144,8 +150,15 @@ def reservert():
 def bokInfo(bokID):
     url = f"http://localhost:8000/bok/{bokID}"
 
+    for i in range(2):
+        try:
+            headers = {"Authorization": f"Bearer {session["accessToken"]}"}
+            break
+        except KeyError:
+            getJWT()
+
     if request.method == "GET":
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
             return f"error connecting to server: {response.status_code}"
@@ -176,25 +189,25 @@ def bokInfo(bokID):
         print(form)
 
         if form.get("reservert", None) == "true":
-            res = requests.post("http://localhost:8000/bok/reservert", json={"klar": False, "bokID": bokID})
+            res = requests.post("http://localhost:8000/bok/reservert/update", json={"klar": False, "bokID": bokID}, headers=headers)
 
         if form["submit"] == "Lei Ut":
             elevNavn = form["elevNavn"]
             dager = form["dager"]
 
-            response = requests.get("http://localhost:8000/elev", headers={"elevNavn": elevNavn})
+            response = requests.get("http://localhost:8000/getJWT", headers={"elevNavn": elevNavn})
 
             if response.status_code == 200:
                 elevID = response.json()["id"]
             else:
                 return f"error: {response.status_code}"
 
-            response = requests.post(url, json={"elevID": elevID, "dager": dager})
+            response = requests.post(url, json={"elevID": elevID, "dager": dager}, headers=headers)
             return redirect(url_for("bokInfo", bokID=bokID))
         else:
             #print("returnerer")
 
-            response = requests.post(url, json={"return": True})
+            response = requests.post(url, json={"return": True}, headers=headers)
             return redirect(url_for("bokInfo", bokID=bokID))
 
 if __name__ == "__main__":

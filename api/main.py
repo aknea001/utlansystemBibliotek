@@ -39,8 +39,6 @@ def getJWT():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            print(f"{fullNavn[0]} {fullNavn[1]}")
-
             query = "SELECT salt FROM elever WHERE fornavn = %s AND etternavn = %s"
 
             cursor.execute(query, (fullNavnLst[0], fullNavnLst[1]))
@@ -232,7 +230,11 @@ def elevNavn():
         return jsonify([])
 
 @app.route("/bok/<bokID>", methods=["GET", "POST"])
+@jwt_required()
 def bok(bokID):
+    if "biblio" not in get_jwt_identity():
+        return jsonify({"error": "Unauthorized"}), 403
+
     if request.method == "GET":
         try:
             db = mysql.connector.connect(**sqlConfig)
@@ -374,7 +376,7 @@ def boker():
                 cursor.close()
                 db.close()
 
-@app.route("/bok/add", methods=["POST"])
+@app.route("/bok", methods=["POST"])
 @jwt_required()
 def addBoker():
     if "biblio" not in get_jwt_identity():
@@ -404,88 +406,110 @@ def addBoker():
             cursor.close()
             db.close()
 
-@app.route("/bok/reservert", methods=["GET", "POST"])
+@app.route("/bok/reservert", methods=["GET"])
 def reservert():
-    if request.method == "GET":
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+        
+        query = "SELECT \
+                    u.*, \
+                    b.navn, \
+                    b.forfatter, \
+                    b.hylle \
+                FROM utlan u \
+                LEFT JOIN boker b ON u.bokID = b.id \
+                WHERE u.reservert = 't' \
+                AND u.reservertKlar = 'f'"
+        
+        cursor.execute(query)
+        data = cursor.fetchall()
+
+        dataLst = []
+
+        for i in data:
+            dic = {
+                "elevID": i[2],
+                "bokID": i[1],
+                "tittel": i[7],
+                "forfatter": i[8],
+                "hylle": i[9]
+            }
+
+            dataLst.append(dic)
+
+        return jsonify(dataLst)
+    except mysql.connector.Error as e:
+        db = None
+        return jsonify({"error": f"Database Error: {e}"})
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
+
+@app.route("/bok/reservert", methods=["POST"])
+@jwt_required()
+def nyRes():
+    data = request.json
+    elevID = get_jwt_identity()
+
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
+
+        if "klar" not in data:
+            query = "INSERT INTO utlan (bokID, elevID, reservert, reservertKlar, sluttDato) \
+                    VALUES \
+                    (%s, %s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
             
-            query = "SELECT \
-                        u.*, \
-                        b.navn, \
-                        b.forfatter, \
-                        b.hylle \
-                    FROM utlan u \
-                    LEFT JOIN boker b ON u.bokID = b.id \
-                    WHERE u.reservert = 't' \
-                    AND u.reservertKlar = 'f'"
+            cursor.execute(query, (data["bokID"], elevID, "t", "f", 2))
+            db.commit()
             
-            cursor.execute(query)
-            data = cursor.fetchall()
+            return jsonify({"Success": True})
+    except mysql.connector.Error as e:
+        db = None
+        return jsonify({"error": f"Database Error: {e}"})
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
 
-            dataLst = []
+@app.route("/bok/reservert/update", methods=["POST"])
+@jwt_required()
+def updRes():
+    if "biblio" not in get_jwt_identity():
+        return jsonify({"error": "Unauthorized"}), 403
 
-            for i in data:
-                dic = {
-                    "elevID": i[2],
-                    "bokID": i[1],
-                    "tittel": i[7],
-                    "forfatter": i[8],
-                    "hylle": i[9]
-                }
+    data = request.json
 
-                dataLst.append(dic)
+    try:
+        db = mysql.connector.connect(**sqlConfig)
+        cursor = db.cursor()
 
-            return jsonify(dataLst)
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"Database Error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
-    elif request.method == "POST":
-        data = request.json
-
-        try:
-            db = mysql.connector.connect(**sqlConfig)
-            cursor = db.cursor()
-
-            if "klar" not in data:
-                query = "INSERT INTO utlan (bokID, elevID, reservert, reservertKlar, sluttDato) \
-                        VALUES \
-                        (%s, %s, %s, %s, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL %s DAY))"
-                
-                cursor.execute(query, (data["bokID"], data["elevID"], "t", "f", 2))
-                db.commit()
-                
-                return jsonify({"Success": True})
+        if data["klar"]:
+            query = "UPDATE utlan \
+                    SET reservertKlar = %s \
+                    WHERE bokID = %s and reservert = %s"
             
-            if data["klar"]:
-                query = "UPDATE utlan \
-                        SET reservertKlar = %s \
-                        WHERE bokID = %s and reservert = %s"
-                
-                cursor.execute(query, ("t", data["bokID"], "t"))
-                db.commit()
+            cursor.execute(query, ("t", data["bokID"], "t"))
+            db.commit()
 
-                return jsonify({"success": True})
-            elif not data["klar"]:
-                query = "DELETE FROM utlan \
-                        WHERE bokID = %s and reservert = %s"
-                
-                cursor.execute(query, (data["bokID"], "t"))
-                db.commit()
+            return jsonify({"success": True})
+        elif not data["klar"]:
+            query = "DELETE FROM utlan \
+                    WHERE bokID = %s and reservert = %s"
+            
+            cursor.execute(query, (data["bokID"], "t"))
+            db.commit()
 
-                return jsonify({"success": True})
-        except mysql.connector.Error as e:
-            db = None
-            return jsonify({"error": f"Database Error: {e}"})
-        finally:
-            if db != None and db.is_connected():
-                cursor.close()
-                db.close()
+            return jsonify({"success": True})
+    except mysql.connector.Error as e:
+        db = None
+        return jsonify({"error": f"Database Error: {e}"})
+    finally:
+        if db != None and db.is_connected():
+            cursor.close()
+            db.close()
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)

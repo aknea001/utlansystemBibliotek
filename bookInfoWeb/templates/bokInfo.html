@@ -14,7 +14,6 @@
     </nav>
 </header>
 <body>
-
     <h1>{{ navn }}</h1>
     <p>Forfatter: {{ forfatter }}</p>
     <p>Sjanger: {{ sjanger }}</p>
@@ -49,7 +48,7 @@
 
             {% if reservertIkkeKlar %}
                 <input value="true" type="hidden" name="reservert">
-            {% else %}
+            {% elif not reservertNavn %}
                 <input value="false" type="hidden" name="reservert">
             {% endif %}
             <input value="Lei Ut" type="submit" name="submit">
