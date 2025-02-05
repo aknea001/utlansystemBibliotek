@@ -45,7 +45,7 @@ function display(tittel, forfatter, hylle, lant, img, bokID, accessToken) {
         bookInfo.innerHTML += `
         <div class="popup-shelf">Hylle: ${hylle}</div>
         <div class="popup-status available">Tilgjengelig</div>
-        <br><button onclick="nyRes(${accessToken}, ${bokID}, '${tittel}', '${forfatter}', '${hylle}')" class="popup-status reserver">Reserver</button>`
+        <br><button onclick="nyRes('${accessToken}', ${bokID}, '${tittel}', '${forfatter}', '${hylle}')" class="popup-status reserver">Reserver</button>`
     
 
     document.body.appendChild(backdrop)
