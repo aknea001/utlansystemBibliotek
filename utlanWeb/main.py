@@ -137,7 +137,7 @@ def elevInfo():
 
     url = "http://localhost:8000/elev"
 
-    response = requests.get(url, headers={"elevID": str(session["elevID"])})
+    response = requests.get(url, headers={"Authorization": f"Bearer {session["accessToken"]}"})
 
     if response.status_code != 200:
         return f"error connecting to server: {response.status_code}"
@@ -182,7 +182,7 @@ def register():
     salt = token_hex(32)
     hashed = hash(passwd, salt)
     
-    url = "http://localhost:8000/elev"
+    url = "http://localhost:8000/getJWT"
 
     response = requests.get(url, headers={"elevNavn": user})
 

@@ -30,7 +30,7 @@ def hash(passwd, salt):
     return hashed
 
 @app.route("/getJWT")
-def genJWT():
+def getJWT():
     if ("elevNavn" and "passwd") in request.headers:
         fullNavn = request.headers["elevNavn"]
         fullNavnLst = fullNavn.split(" ")
@@ -89,7 +89,7 @@ def genJWT():
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
 
-            query = "SELECT id, registrert, salt FROM elever WHERE fornavn = %s AND etternavn = %s"
+            query = "SELECT id, registrert FROM elever WHERE fornavn = %s AND etternavn = %s"
             cursor.execute(query, (first, last))
 
             data = cursor.fetchone()
@@ -104,8 +104,7 @@ def genJWT():
         if data:
             dataDic = {
                 "id": data[0],
-                "registrert": data[1],
-                "salt": data[2]
+                "registrert": data[1]
             }
             return jsonify(dataDic)
         else:
