@@ -135,14 +135,14 @@ def clear():
 
 @app.route("/reservert")
 def reservert():
-    response = requests.get(apiUrl + "/bok/reservert")
+    getJWT()
+
+    response = requests.get(apiUrl + "/bok/reservert", headers={"Authorization": f"Bearer {session["accessToken"]}"})
 
     if response.status_code != 200:
         return str(response.status_code)
     
     data = response.json()
-
-    getJWT()
 
     return render_template("reservert.html", reservert=data)
 

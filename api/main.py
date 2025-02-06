@@ -150,6 +150,7 @@ def elev():
     else:
         return jsonify({"error": "No data found"}), 404
 
+# Gonna protect route with otps n shit
 @app.route("/elev/update", methods=["POST"])
 def elevUpdate():
     postData = request.json
@@ -418,7 +419,11 @@ def addBoker():
             db.close()
 
 @app.route("/bok/reservert", methods=["GET"])
+@jwt_required()
 def reservert():
+    if "biblio" not in get_jwt_identity():
+        return jsonify({"error": "Unauthorized"}), 403
+
     try:
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()
