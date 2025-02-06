@@ -10,6 +10,8 @@ app = Flask(__name__)
 app.secret_key = getenv("FLASKPASSWD")
 app.jinja_env.filters["zip"] = zip
 
+apiUrl = "http://localhost:8000"
+
 def generateCover(navn, forfattere, amount):
     from PIL import Image, ImageDraw, ImageFont
 
@@ -44,15 +46,13 @@ def index():
 
     convertedPage = (int(page) - 1) * 8
 
-    url = "http://localhost:8000/bok"
-
     search = None
 
     if "search" in request.args:
         search = request.args["search"]
-        response = requests.get(url, headers={"page": str(convertedPage), "searchQuery": search})
+        response = requests.get(apiUrl + "/bok", headers={"page": str(convertedPage), "searchQuery": search})
     else:
-        response = requests.get(url, headers={"page": str(convertedPage)})
+        response = requests.get(apiUrl + "/bok", headers={"page": str(convertedPage)})
     
     if response.status_code != 200:
         return f"oopsie: {response.status_code}"
@@ -94,11 +94,10 @@ def login():
         session.clear()
         return render_template("login.html")
     
-    url = "http://localhost:8000/getJWT"
     user = request.form["navn"]
 
     if "passwd" not in request.form:
-        response = requests.get(url, headers={"elevNavn": str(user)})
+        response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": str(user)})
 
         if response.status_code != 200:
             return f"error connecting to API: {response.status_code}"
@@ -111,7 +110,7 @@ def login():
     
     passwd = request.form["passwd"]
 
-    response = requests.get(url, headers={"elevNavn": str(user), "passwd": str(passwd)})
+    response = requests.get(apiUrl + "/getJWT", headers={"elevNavn": str(user), "passwd": str(passwd)})
 
     if response.status_code == 200:
         session["accessToken"] = response.json()["accessToken"]
@@ -136,9 +135,8 @@ def elevInfo():
         session["redirectUrl"] = url_for("elevInfo")
         return redirect(url_for("login"))
 
-    url = "http://localhost:8000/elev"
 
-    response = requests.get(url, headers={"Authorization": f"Bearer {session["accessToken"]}"})
+    response = requests.get(apiUrl + "/elev", headers={"Authorization": f"Bearer {session["accessToken"]}"})
 
     if response.status_code == 401:
         session.clear()
@@ -186,16 +184,15 @@ def register():
     salt = token_hex(32)
     hashed = hash(passwd, salt)
     
-    url = "http://localhost:8000/getJWT"
 
-    response = requests.get(url, headers={"elevNavn": user})
+    response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": user})
 
     if response.status_code != 200:
         return f"error connecting to database: {response.status_code}"
     
     elevID = response.json()["id"]
 
-    response = requests.post(url, json={"hash": hashed, "salt": salt, "elevID": elevID})
+    response = requests.post(apiUrl + "/elev/update", json={"hash": hashed, "salt": salt, "elevID": elevID})
 
     return redirect(url_for("login"))
 
