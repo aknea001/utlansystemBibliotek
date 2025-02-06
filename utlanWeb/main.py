@@ -3,12 +3,13 @@ from dotenv import load_dotenv
 from os import getenv
 from secrets import token_hex
 import requests
+from datetime import timedelta
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = getenv("UTLANKEY")
-app.jinja_env.filters["zip"] = zip
+app.permanent_session_lifetime = timedelta(days=1)
 
 apiUrl = "http://localhost:8000"
 
@@ -113,6 +114,7 @@ def login():
     response = requests.get(apiUrl + "/getJWT", headers={"elevNavn": str(user), "passwd": str(passwd)})
 
     if response.status_code == 200:
+        session.permanent = True
         session["accessToken"] = response.json()["accessToken"]
     elif response.status_code == 404:
         return "Wrong credentials"

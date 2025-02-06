@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 import mysql.connector
 from dotenv import load_dotenv
 from os import getenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -71,7 +72,7 @@ def getJWT():
 
         if data:
             dataDic = {
-                    "accessToken": create_access_token(str(data[0]))
+                    "accessToken": create_access_token(str(data[0]), expires_delta=timedelta(days=1))
             }
 
             return jsonify(dataDic)
