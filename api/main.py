@@ -484,7 +484,7 @@ def nyRes():
             return jsonify({"Success": True})
     except mysql.connector.Error as e:
         db = None
-        return jsonify({"error": f"Database Error: {e}"})
+        return jsonify({"error": f"Database Error: {e}"}), 500
     finally:
         if db != None and db.is_connected():
             cursor.close()

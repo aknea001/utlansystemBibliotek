@@ -9,7 +9,7 @@ from qrMaker import makeQR
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = getenv("FLASKPASSWD")
+app.secret_key = getenv("BOKINFOKEY")
 
 apiUrl = "http://localhost:8000"
 
@@ -93,7 +93,10 @@ def index():
             docs = response.json()["docs"][0]
 
             forfatter = docs["author_name"][0]
-            sjanger = choice(docs["subject"])
+            if "subject" in docs:
+                sjanger = choice(docs["subject"])
+            else:
+                sjanger = ""
         else:
             forfatter = ""
             sjanger = ""

@@ -61,7 +61,7 @@ function nyRes(accessToken, bokID, tittel, forfatter, hylle) {
     const xhr = new XMLHttpRequest()
 
     xhr.open("GET", "http://localhost:8000/validateJWT")
-    xhr.setRequestHeader("Authorization", accessToken)
+    xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`)
     xhr.send()
     xhr.responseType = "json"
     xhr.onload = () => {

@@ -7,7 +7,7 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = getenv("FLASKPASSWD")
+app.secret_key = getenv("UTLANKEY")
 app.jinja_env.filters["zip"] = zip
 
 apiUrl = "http://localhost:8000"
