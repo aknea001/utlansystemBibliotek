@@ -4,6 +4,7 @@ from os import getenv
 from secrets import token_hex
 import requests
 from datetime import timedelta
+import pyotp
 
 load_dotenv()
 
@@ -174,28 +175,51 @@ def elevInfo():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
+        return redirect(url_for("login"))
+    
+    form = request.form
+
+    if "number" in form:
+        user = form["elevNavn"]
+        passwd = form["passwd"]
+        passwdCheck = form["passwdCheck"]
+
+        if passwd != passwdCheck:
+            return "passwords not matching"
+        
+        salt = token_hex(32)
+        hashed = hash(passwd, salt)
+
+        response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": user})
+
+        if response.status_code != 200:
+            return f"error connecting to database: {response.status_code}"
+        
+        elevID = response.json()["id"]
+
+        otpSecretAddon = pyotp.random_base32()
+        otpSecret = str(getenv("otpBase")) + otpSecretAddon
+
+        totp = pyotp.TOTP(otpSecret)
+
+        session["hash"] = hashed
+        session["salt"] = salt
+        session["elevID"] = elevID
+        session["otpSecretAddon"] = otpSecretAddon
+        session["number"] = form["number"]
+
+        print(totp.now()) #Send otp to number, print for testing
         return render_template("register.html")
     
-    user = request.form["elevNavn"]
-    passwd = request.form["passwd"]
-    passwdCheck = request.form["passwdCheck"]
+    otp = form["otp"]
 
-    if passwd != passwdCheck:
-        return "passwords not matching"
+    response = requests.post(apiUrl + "/elev/update", json={"otp": otp, "otpSecret": session["otpSecretAddon"], "hash": session["hash"], "salt": session["salt"], "elevID": session["elevID"]})
+
+    if response.status_code == 400:
+        return "Wrong verification code"
+    elif response.status_code != 200:
+        return f"Error connecting to API: {response.status_code}"
     
-    salt = token_hex(32)
-    hashed = hash(passwd, salt)
-    
-
-    response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": user})
-
-    if response.status_code != 200:
-        return f"error connecting to database: {response.status_code}"
-    
-    elevID = response.json()["id"]
-
-    response = requests.post(apiUrl + "/elev/update", json={"hash": hashed, "salt": salt, "elevID": elevID})
-
     return redirect(url_for("login"))
 
 if __name__ == "__main__":

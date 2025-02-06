@@ -5,6 +5,7 @@ import mysql.connector
 from dotenv import load_dotenv
 from os import getenv
 from datetime import timedelta
+import pyotp
 
 load_dotenv()
 
@@ -151,10 +152,15 @@ def elev():
     else:
         return jsonify({"error": "No data found"}), 404
 
-# Gonna protect route with otps n shit
 @app.route("/elev/update", methods=["POST"])
 def elevUpdate():
     postData = request.json
+
+    totp = pyotp.TOTP(str(getenv("otpBase")) + str(postData["otpSecret"]))
+
+    if not totp.verify(postData["otp"], valid_window=1):
+        return jsonify({"error": "Wrong otp"}), 400
+    
     try:
         db = mysql.connector.connect(**sqlConfig)
         cursor = db.cursor()

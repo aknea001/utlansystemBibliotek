@@ -22,11 +22,17 @@
 <body>
     <form id="formStyling" action="/register" method="POST">
         <h1>REGISTER</h1>
-        <input value="{{ elevNavn }}" placeholder="Username" type="text" name="elevNavn" required readonly><br>
-        <input placeholder="Password" type="password" name="passwd" required><br>
-        <input placeholder="Confirm Password" type="password" name="passwdCheck" required><br>
+        {% if "number" not in session %}
+            <input value="{{ elevNavn }}" placeholder="Username" type="text" name="elevNavn" required readonly><br>
+            <input placeholder="Password" type="password" name="passwd" required><br>
+            <input placeholder="Confirm Password" type="password" name="passwdCheck" required><br>
+            <input placeholder="Phone Number, include country code" type="text" name="number" required>
+        {% else %}
+            <input placeholder="Verification code" type="text" name="otp" required>
+            <p>Sendt verification code to {{ session["number"] }}</p>
+        {% endif %}
 
-        <input value="Register" type="submit">
+        <input value="Next" type="submit">
     </form>
 </main>
 </body>
