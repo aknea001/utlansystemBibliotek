@@ -11,6 +11,8 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = getenv("FLASKPASSWD")
 
+apiUrl = "http://localhost:8000"
+
 def generateCover(navn, forfatter):
     from PIL import Image, ImageDraw, ImageFont
 
@@ -46,7 +48,7 @@ def generateHylle():
     return hylle
 
 def getJWT():
-    res = requests.get("http://localhost:8000/getJWT", headers={"biblio": "biblio1", "biblioToken": getenv("biblioToken")})
+    res = requests.get(apiUrl + "/getJWT", headers={"biblio": "biblio1", "biblioToken": getenv("biblioToken")})
 
     if res.status_code != 200:
         return f"Error getting access token: {res.status_code}"
@@ -108,11 +110,9 @@ def index():
 
     hylle = generateHylle()
 
-    url = "http://localhost:8000/bok"
-
     for i in range(2):
         try:
-            response = requests.post(url, headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+            response = requests.post(apiUrl + "/bok", headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
             break
         except KeyError:
             getJWT()
@@ -135,9 +135,7 @@ def clear():
 
 @app.route("/reservert")
 def reservert():
-    url = "http://localhost:8000/bok/reservert"
-
-    response = requests.get(url)
+    response = requests.get(apiUrl + "/bok/reservert")
 
     if response.status_code != 200:
         return str(response.status_code)
@@ -150,7 +148,7 @@ def reservert():
 
 @app.route("/<bokID>", methods=["GET", "POST"])
 def bokInfo(bokID):
-    url = f"http://localhost:8000/bok/{bokID}"
+    url = f"{apiUrl}/bok/{bokID}"
 
     for i in range(2):
         try:
@@ -191,13 +189,13 @@ def bokInfo(bokID):
         print(form)
 
         if form.get("reservert", None) == "true":
-            res = requests.post("http://localhost:8000/bok/reservert/update", json={"klar": False, "bokID": bokID}, headers=headers)
+            res = requests.post(apiUrl + "/bok/reservert/update", json={"klar": False, "bokID": bokID}, headers=headers)
 
         if form["submit"] == "Lei Ut":
             elevNavn = form["elevNavn"]
             dager = form["dager"]
 
-            response = requests.get("http://localhost:8000/getJWT", headers={"elevNavn": elevNavn})
+            response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": elevNavn})
 
             if response.status_code == 200:
                 elevID = response.json()["id"]
