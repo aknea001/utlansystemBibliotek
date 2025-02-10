@@ -37,6 +37,9 @@ def getJWT():
         fullNavn = request.headers["elevNavn"]
         fullNavnLst = fullNavn.split(" ")
 
+        if len(fullNavnLst) < 2:
+            return jsonify({"error": "No user with that name"}), 404
+
         try:
             db = mysql.connector.connect(**sqlConfig)
             cursor = db.cursor()
@@ -188,6 +191,9 @@ def elevInfo():
     if "elevNavn" in request.headers:
         fullNavn = request.headers["elevNavn"]
         fullNavnLst = fullNavn.split(" ", 1)
+
+        if len(fullNavnLst) < 2:
+            return jsonify({"error": "No user with that name"}), 404
 
         first = fullNavnLst[0]
         last = fullNavnLst[1]

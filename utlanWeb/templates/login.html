@@ -29,6 +29,10 @@
             <input placeholder="Password" type="password" name="passwd" required><br>
         {% endif %}
 
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
         <input value="Login" type="submit">
     </form>
 

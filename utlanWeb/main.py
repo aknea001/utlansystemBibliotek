@@ -91,17 +91,19 @@ def hash(passwd, salt):
     return hashed
 
 @app.route("/login", methods=["GET", "POST"])
-def login():
+def login(error=None):
     if request.method == "GET":
         session.clear()
-        return render_template("login.html")
+        return render_template("login.html", error=error)
     
     user = request.form["navn"]
 
     if "passwd" not in request.form:
         response = requests.get(apiUrl + "/elev/info", headers={"elevNavn": str(user)})
 
-        if response.status_code != 200:
+        if response.status_code == 404:
+            return render_template("login.html", error=response.json()["error"])
+        elif response.status_code != 200:
             return f"error connecting to API: {response.status_code}"
         
         if response.json()["registrert"] == "f":
