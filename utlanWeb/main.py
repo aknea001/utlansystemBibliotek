@@ -139,7 +139,7 @@ def elevInfo():
         return redirect(url_for("login"))
 
 
-    response = requests.get(apiUrl + "/elev", headers={"Authorization": f"Bearer {session["accessToken"]}"})
+    response = requests.get(apiUrl + "/elev", headers={"Authorization": f"Bearer {session['accessToken']}"})
 
     if response.status_code == 401:
         session.clear()

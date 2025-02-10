@@ -115,7 +115,7 @@ def index():
 
     for i in range(2):
         try:
-            response = requests.post(apiUrl + "/bok", headers={"Authorization": f"Bearer {session["accessToken"]}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
+            response = requests.post(apiUrl + "/bok", headers={"Authorization": f"Bearer {session['accessToken']}"}, json={"tittel": tittel, "forfatter": forfatter, "sjanger": sjanger, "hylle": hylle})
             break
         except KeyError:
             getJWT()
@@ -140,7 +140,7 @@ def clear():
 def reservert():
     getJWT()
 
-    response = requests.get(apiUrl + "/bok/reservert", headers={"Authorization": f"Bearer {session["accessToken"]}"})
+    response = requests.get(apiUrl + "/bok/reservert", headers={"Authorization": f"Bearer {session['accessToken']}"})
 
     if response.status_code != 200:
         return str(response.status_code)
@@ -155,7 +155,7 @@ def bokInfo(bokID):
 
     for i in range(2):
         try:
-            headers = {"Authorization": f"Bearer {session["accessToken"]}"}
+            headers = {"Authorization": f"Bearer {session['accessToken']}"}
             break
         except KeyError:
             getJWT()

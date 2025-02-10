@@ -20,7 +20,7 @@ async def handler(websocket):
 
             url = "http://localhost:8000/bok/reservert"
 
-            headers = {"Authorization": f"Bearer {received["accessToken"]}"}
+            headers = {"Authorization": f"Bearer {received['accessToken']}"}
 
             if event == "nyRes":
                 res = requests.post(url, json={"bokID": data["bokID"]}, headers=headers)
